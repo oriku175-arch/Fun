@@ -1,43 +1,6 @@
 import React from 'react'
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
-import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
-import { KernelSize } from 'postprocessing'
-import PlanetSystem from './scene/PlanetSystem.jsx'
+import HeroPage from './HeroPage.jsx'
 
 export default function App() {
-  return (
-    <>
-      <Canvas
-        dpr={[1, 2]}
-        camera={{ fov: 42, position: [0, 1.3, 8], near: 0.1, far: 100 }}
-        gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
-      >
-        <color attach="background" args={['#050505']} />
-        <PlanetSystem />
-        <OrbitControls
-          enableDamping
-          dampingFactor={0.055}
-          enablePan={false}
-          rotateSpeed={0.55}
-          minDistance={4}
-          maxDistance={16}
-        />
-        <EffectComposer multisampling={0}>
-          <Bloom
-            luminanceThreshold={0.32}
-            luminanceSmoothing={0.35}
-            mipmapBlur
-            kernelSize={KernelSize.SMALL}
-            intensity={0.55}
-            radius={0.55}
-          />
-          <Vignette eskil={false} offset={0.22} darkness={0.55} />
-        </EffectComposer>
-      </Canvas>
-      <div className="hint">
-        drag to orbit <span>·</span> hover to disrupt
-      </div>
-    </>
-  )
+  return <HeroPage />
 }
