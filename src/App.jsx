@@ -1,6 +1,8 @@
 import React from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
+import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
+import { KernelSize } from 'postprocessing'
 import PlanetSystem from './scene/PlanetSystem.jsx'
 
 export default function App() {
@@ -21,6 +23,17 @@ export default function App() {
           minDistance={4}
           maxDistance={16}
         />
+        <EffectComposer multisampling={0}>
+          <Bloom
+            luminanceThreshold={0.32}
+            luminanceSmoothing={0.35}
+            mipmapBlur
+            kernelSize={KernelSize.SMALL}
+            intensity={0.55}
+            radius={0.55}
+          />
+          <Vignette eskil={false} offset={0.22} darkness={0.55} />
+        </EffectComposer>
       </Canvas>
       <div className="hint">
         drag to orbit <span>·</span> hover to disrupt

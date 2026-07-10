@@ -88,19 +88,6 @@ function makeTrailGeometry() {
   return geo
 }
 
-function makeRingGeometry(radius) {
-  const seg = 160
-  const pos = new Float32Array(seg * 3)
-  for (let i = 0; i < seg; i++) {
-    const a = (i / seg) * Math.PI * 2
-    pos[i * 3] = Math.cos(a) * radius
-    pos[i * 3 + 1] = Math.sin(a) * radius
-  }
-  const geo = new THREE.BufferGeometry()
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3))
-  return geo
-}
-
 // Mulberry32 — deterministic layout across reloads.
 function mulberry32(seed) {
   return () => {
@@ -134,7 +121,6 @@ export default function Satellites() {
         spinAxis: new THREE.Vector3(rng() * 2 - 1, rng() * 2 - 1, rng() * 2 - 1).normalize(),
         clusterGeo: makeClusterGeometry(rng),
         trailGeo: makeTrailGeometry(),
-        ringGeo: makeRingGeometry(radius),
         clusterUniforms: {
           uTime: { value: rng() * 100 },
           uScale: { value: 1000 },
@@ -158,12 +144,9 @@ export default function Satellites() {
 
   const clusterRefs = useRef([])
   const trailRefs = useRef([])
-  const ringMatRefs = useRef([])
 
   const tmpWorld = useMemo(() => new THREE.Vector3(), [])
   const tmpTarget = useMemo(() => new THREE.Vector3(), [])
-  const white = useMemo(() => new THREE.Color(0.96, 0.96, 0.96), [])
-  const blue = useMemo(() => new THREE.Color('#2348FF'), [])
 
   useFrame((state, delta) => {
     const dt = Math.min(delta, 1 / 30)
@@ -239,13 +222,6 @@ export default function Satellites() {
         arr[2] = cluster.position.z
       }
       attr.needsUpdate = true
-
-      // --- Orbit ring accent ----------------------------------------------
-      const ringMat = ringMatRefs.current[i]
-      if (ringMat) {
-        ringMat.opacity = 0.05 + 0.1 * dis
-        ringMat.color.copy(white).lerp(blue, dis * 0.6)
-      }
     }
   })
 
@@ -253,15 +229,6 @@ export default function Satellites() {
     <group>
       {sats.map((s, i) => (
         <group key={s.id} quaternion={s.quaternion}>
-          <lineLoop geometry={s.ringGeo} renderOrder={0}>
-            <lineBasicMaterial
-              ref={(m) => (ringMatRefs.current[i] = m)}
-              transparent
-              opacity={0.05}
-              color="#f5f5f5"
-              depthWrite={false}
-            />
-          </lineLoop>
           <points
             ref={(p) => (clusterRefs.current[i] = p)}
             geometry={s.clusterGeo}
