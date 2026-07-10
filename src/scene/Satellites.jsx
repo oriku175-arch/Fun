@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import { useInteraction } from './PlanetSystem.jsx'
 
 const SAT_COUNT = 10
-const SAT_PARTICLES = 400
+const SAT_PARTICLES = 900
 const TRAIL = 48
 
 const satVertexShader = /* glsl */ `
@@ -13,35 +13,27 @@ attribute float aRand;
 uniform float uTime;
 uniform float uScale;
 uniform float uDisrupt;
-uniform vec3 uCenter;   // satellite center in world space
+uniform float uRadius;
 
 varying float vAlpha;
 varying float vAccent;
 
 void main() {
   vec3 n = aBase;
-  float r = 0.24 * (1.0 + 0.08 * sin(uTime * 0.7 + aRand * 6.2831));
-  vec3 p = n * r;
-
-  // Tumble while disrupted.
-  float angle = uTime * (2.5 + 3.0 * uDisrupt) + aRand * 6.2831;
-  mat3 rot = mat3(
-    cos(angle), 0.0, sin(angle),
-    0.0, 1.0, 0.0,
-    -sin(angle), 0.0, cos(angle)
-  );
-  p = rot * p;
+  // Fixed radius -> clean little globe. Particles only scatter when disrupted.
+  vec3 p = n * uRadius;
+  p += n * uDisrupt * (0.12 + aRand * 0.35);  // shell puffs apart on disruption
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
 
-  float wobble = uDisrupt * 0.5;
-  float size = (0.018 + aRand * 0.028) * (1.0 + wobble);
+  float size = (0.012 + aRand * 0.014) * (1.0 + uDisrupt * 0.6);
   gl_PointSize = size * uScale / -mv.z;
 
+  // Solid-looking front hemisphere, faded back — same read as the planet.
   vec3 vn = normalize(normalMatrix * n);
-  float facing = vn.z * 0.5 + 0.5;
-  vAlpha = (0.32 + aRand * 0.58) * (0.1 + 0.9 * facing);
+  float facing = pow(vn.z * 0.5 + 0.5, 1.8);
+  vAlpha = (0.55 + aRand * 0.45) * (0.12 + 0.88 * facing);
   vAccent = uDisrupt * 0.5 * aRand;
 }
 `
@@ -144,18 +136,26 @@ export default function Satellites() {
   const sats = useMemo(() => {
     const rng = mulberry32(1337)
     return Array.from({ length: SAT_COUNT }, (_, i) => {
-      const radius = 3.2 + rng() * 2.6
-      const normal = new THREE.Vector3(rng() * 2 - 1, rng() * 2 - 1, rng() * 2 - 1)
-        .normalize()
+      // Solar-system layout: nested orbits sharing a common ecliptic plane,
+      // each with only a small inclination and its own ascending node.
+      const radius = 3.1 + i * 0.42 + rng() * 0.18
+      const inclination = (rng() - 0.5) * 0.42 // ±~12°
+      const node = rng() * Math.PI * 2
+      const normal = new THREE.Vector3(
+        Math.sin(inclination) * Math.cos(node),
+        Math.cos(inclination),
+        Math.sin(inclination) * Math.sin(node),
+      ).normalize()
       const quaternion = new THREE.Quaternion().setFromUnitVectors(
         new THREE.Vector3(0, 0, 1),
         normal,
       )
+      const satRadius = 0.12 + rng() * 0.16 // varied planet sizes
       return {
         id: i,
         radius,
         quaternion,
-        speed: (0.08 + rng() * 0.25) * (rng() > 0.35 ? 1 : -1),
+        speed: (0.06 + rng() * 0.16) * (rng() > 0.2 ? 1 : -1),
         phase: rng() * Math.PI * 2,
         spinAxis: new THREE.Vector3(rng() * 2 - 1, rng() * 2 - 1, rng() * 2 - 1).normalize(),
         satGeo: makeSatelliteGeometry(SAT_PARTICLES),
@@ -165,7 +165,7 @@ export default function Satellites() {
           uTime: { value: rng() * 100 },
           uScale: { value: 1000 },
           uDisrupt: { value: 0 },
-          uCenter: { value: new THREE.Vector3() },
+          uRadius: { value: satRadius },
         },
         trailUniforms: {
           uScale: { value: 1000 },

@@ -76,11 +76,13 @@ void main() {
 
   gl_Position = projectionMatrix * mv;
 
-  // Depth cue: far-side particles fade almost out.
+  // Depth cue: far-side particles fade to nothing so the shell reads as a
+  // solid, hollow globe — you should not see through to the back hemisphere.
   vec3 vn = normalize(normalMatrix * n);
-  float facing = pow(vn.z * 0.5 + 0.5, 1.6);
-  vAlpha = (0.38 + aRand.z * 0.62) * (0.15 + 0.85 * facing);
-  vAlpha *= 1.0 - clamp(rep * 0.45, 0.0, 0.5); // scattered particles thin out
+  float front = smoothstep(-0.1, 0.35, vn.z);   // 0 on back, 1 on front
+  float facing = pow(vn.z * 0.5 + 0.5, 2.2);
+  vAlpha = (0.5 + aRand.z * 0.5) * facing * front;
+  vAlpha *= 1.0 - clamp(rep * 0.45, 0.0, 0.5);   // scattered particles thin out
   vAccent = clamp(accent, 0.0, 1.0) * 0.28;
   vUv = uv;
 }

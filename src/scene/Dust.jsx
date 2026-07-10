@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { DOT_FRAGMENT } from './shaders.js'
 
-const COUNT = 900
+const COUNT = 500
 
 const vertexShader = /* glsl */ `
 attribute float aRand;
@@ -37,8 +37,8 @@ export default function Dust() {
     const pos = new Float32Array(COUNT * 3)
     const rand = new Float32Array(COUNT)
     for (let i = 0; i < COUNT; i++) {
-      // Hollow shell around the whole system.
-      const r = 2.7 + Math.pow(Math.random(), 0.7) * 6.0
+      // Hollow shell well outside the planet + orbits.
+      const r = 7.0 + Math.pow(Math.random(), 0.7) * 6.0
       const u = Math.random() * 2 - 1
       const th = Math.random() * Math.PI * 2
       const s = Math.sqrt(1 - u * u)
