@@ -4,54 +4,48 @@ import { useFrame } from '@react-three/fiber'
 import { useInteraction } from './PlanetSystem.jsx'
 
 const SAT_COUNT = 10
-const SAT_PARTICLES = 900
-const TRAIL = 48
+const CLUSTER = 90
+const TRAIL = 42
 
-const satVertexShader = /* glsl */ `
-attribute vec3 aBase;   // unit-sphere direction (fibonacci lattice per satellite)
+const clusterVertex = /* glsl */ `
 attribute float aRand;
 uniform float uTime;
 uniform float uScale;
 uniform float uDisrupt;
-uniform float uRadius;
-
 varying float vAlpha;
 varying float vAccent;
 
 void main() {
-  vec3 n = aBase;
-  // Fixed radius -> clean little globe. Particles only scatter when disrupted.
-  vec3 p = n * uRadius;
-  p += n * uDisrupt * (0.06 + aRand * 0.16);  // gentle puff on disruption
+  // Cluster puffs apart while disrupted, plus a slight per-particle shimmer.
+  vec3 p = position * (1.0 + uDisrupt * 0.9 * aRand);
+  p += 0.014 * vec3(
+    sin(uTime * 2.1 + aRand * 21.0),
+    cos(uTime * 1.7 + aRand * 15.0),
+    sin(uTime * 1.3 + aRand * 9.0)
+  ) * (1.0 + uDisrupt * 2.0);
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
+  gl_PointSize = (0.018 + aRand * 0.02) * uScale / -mv.z;
 
-  float size = (0.012 + aRand * 0.014) * (1.0 + uDisrupt * 0.3);
-  gl_PointSize = size * uScale / -mv.z;
-
-  // Solid-looking front hemisphere, faded back — same read as the planet.
-  vec3 vn = normalize(normalMatrix * n);
-  float facing = pow(vn.z * 0.5 + 0.5, 1.8);
-  vAlpha = (0.55 + aRand * 0.45) * (0.12 + 0.88 * facing);
-  vAccent = uDisrupt * 0.22 * aRand;   // barely-there blue tint
+  vAlpha = 0.35 + aRand * 0.55;
+  vAccent = uDisrupt * 0.45 * aRand;
 }
 `
 
 const trailVertex = /* glsl */ `
-attribute float aT;
+attribute float aT; // 0 = newest, 1 = oldest
 uniform float uScale;
 uniform float uFade;
-
 varying float vAlpha;
 varying float vAccent;
 
 void main() {
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   gl_Position = projectionMatrix * mv;
-  gl_PointSize = 0.028 * (1.0 - aT * 0.8) * uScale / -mv.z;
-  vAlpha = uFade * pow(1.0 - aT, 1.8) * 0.6;
-  vAccent = uFade * 0.45;
+  gl_PointSize = 0.022 * (1.0 - aT * 0.75) * uScale / -mv.z;
+  vAlpha = uFade * pow(1.0 - aT, 1.6) * 0.5;
+  vAccent = uFade * 0.35;
 }
 `
 
@@ -68,31 +62,18 @@ void main() {
 }
 `
 
-function makeSatelliteGeometry(count) {
+function makeClusterGeometry(rng) {
   const geo = new THREE.BufferGeometry()
-  const pos = new Float32Array(count * 3)
-  const rand = new Float32Array(count)
-  const base = new Float32Array(count * 3)
-  const golden = Math.PI * (3 - Math.sqrt(5))
-
-  for (let i = 0; i < count; i++) {
-    const y = 1 - (i / (count - 1)) * 2
-    const rad = Math.sqrt(Math.max(0, 1 - y * y))
-    const theta = golden * i
-    const x = Math.cos(theta) * rad
-    const z = Math.sin(theta) * rad
-
-    base[i * 3] = x
-    base[i * 3 + 1] = y
-    base[i * 3 + 2] = z
-    pos[i * 3] = x * 0.24
-    pos[i * 3 + 1] = y * 0.24
-    pos[i * 3 + 2] = z * 0.24
-    rand[i] = Math.random()
+  const pos = new Float32Array(CLUSTER * 3)
+  const rand = new Float32Array(CLUSTER)
+  const gauss = () => rng() + rng() + rng() - 1.5
+  for (let i = 0; i < CLUSTER; i++) {
+    pos[i * 3] = gauss() * 0.075
+    pos[i * 3 + 1] = gauss() * 0.075
+    pos[i * 3 + 2] = gauss() * 0.075
+    rand[i] = rng()
   }
-
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3))
-  geo.setAttribute('aBase', new THREE.BufferAttribute(base, 3))
   geo.setAttribute('aRand', new THREE.BufferAttribute(rand, 1))
   return geo
 }
@@ -108,7 +89,7 @@ function makeTrailGeometry() {
 }
 
 function makeRingGeometry(radius) {
-  const seg = 180
+  const seg = 160
   const pos = new Float32Array(seg * 3)
   for (let i = 0; i < seg; i++) {
     const a = (i / seg) * Math.PI * 2
@@ -120,6 +101,7 @@ function makeRingGeometry(radius) {
   return geo
 }
 
+// Mulberry32 — deterministic layout across reloads.
 function mulberry32(seed) {
   return () => {
     seed |= 0
@@ -136,41 +118,33 @@ export default function Satellites() {
   const sats = useMemo(() => {
     const rng = mulberry32(1337)
     return Array.from({ length: SAT_COUNT }, (_, i) => {
-      // Solar-system layout: nested orbits sharing a common ecliptic plane,
-      // each with only a small inclination and its own ascending node.
-      const radius = 3.1 + i * 0.42 + rng() * 0.18
-      const inclination = (rng() - 0.5) * 0.42 // ±~12°
-      const node = rng() * Math.PI * 2
-      const normal = new THREE.Vector3(
-        Math.sin(inclination) * Math.cos(node),
-        Math.cos(inclination),
-        Math.sin(inclination) * Math.sin(node),
-      ).normalize()
+      const radius = 3.1 + rng() * 2.4
+      const normal = new THREE.Vector3(rng() * 2 - 1, rng() * 2 - 1, rng() * 2 - 1)
+        .normalize()
       const quaternion = new THREE.Quaternion().setFromUnitVectors(
         new THREE.Vector3(0, 0, 1),
         normal,
       )
-      const satRadius = 0.12 + rng() * 0.16 // varied planet sizes
       return {
         id: i,
         radius,
         quaternion,
-        speed: (0.06 + rng() * 0.16) * (rng() > 0.2 ? 1 : -1),
+        speed: (0.1 + rng() * 0.3) * (rng() > 0.35 ? 1 : -1),
         phase: rng() * Math.PI * 2,
         spinAxis: new THREE.Vector3(rng() * 2 - 1, rng() * 2 - 1, rng() * 2 - 1).normalize(),
-        satGeo: makeSatelliteGeometry(SAT_PARTICLES),
+        clusterGeo: makeClusterGeometry(rng),
         trailGeo: makeTrailGeometry(),
         ringGeo: makeRingGeometry(radius),
-        satUniforms: {
+        clusterUniforms: {
           uTime: { value: rng() * 100 },
           uScale: { value: 1000 },
           uDisrupt: { value: 0 },
-          uRadius: { value: satRadius },
         },
         trailUniforms: {
           uScale: { value: 1000 },
           uFade: { value: 0 },
         },
+        // simulation state
         angle: rng() * Math.PI * 2,
         angleVel: 0,
         disrupt: 0,
@@ -182,7 +156,7 @@ export default function Satellites() {
     })
   }, [])
 
-  const satRefs = useRef([])
+  const clusterRefs = useRef([])
   const trailRefs = useRef([])
   const ringMatRefs = useRef([])
 
@@ -199,76 +173,78 @@ export default function Satellites() {
 
     for (let i = 0; i < sats.length; i++) {
       const s = sats[i]
-      const sat = satRefs.current[i]
+      const cluster = clusterRefs.current[i]
       const trail = trailRefs.current[i]
-      if (!sat || !trail) continue
+      if (!cluster || !trail) continue
 
-      // Disruption spring (cursor proximity).
-      sat.getWorldPosition(tmpWorld)
+      // --- Disruption spring (cursor proximity in world space) -----------
+      cluster.getWorldPosition(tmpWorld)
       let target = 0
       if (inter.active) {
         const d = inter.ray.distanceToPoint(tmpWorld)
-        target = THREE.MathUtils.clamp(1 - (d - 0.4) / 0.9, 0, 1)
+        target = THREE.MathUtils.clamp(1 - (d - 0.35) / 0.75, 0, 1)
       }
-      const k = 16
-      const c = 6
+      const k = 14
+      const c = 5
       s.disruptVel += (k * (target - s.disrupt) - c * s.disruptVel) * dt
       s.disrupt += s.disruptVel * dt
-      const dis = THREE.MathUtils.clamp(s.disrupt, 0, 1.5)
+      const dis = THREE.MathUtils.clamp(s.disrupt, 0, 1.4)
 
-      // Orbit with easing; disruption sheds speed.
-      const ease = 0.87 + 0.13 * Math.sin(state.clock.elapsedTime * 0.25 + s.phase)
-      s.angle += s.speed * ease * dt * (1 - 0.8 * Math.min(dis, 1))
+      // --- Orbit with smooth easing; disruption sheds orbital speed ------
+      const ease = 0.85 + 0.15 * Math.sin(state.clock.elapsedTime * 0.3 + s.phase)
+      s.angle += s.speed * ease * dt * (1 - 0.85 * Math.min(dis, 1))
 
       const bx = Math.cos(s.angle) * s.radius
       const by = Math.sin(s.angle) * s.radius
 
-      // Drift outward and vertical while disrupted.
+      // --- Drift outward while disrupted, spring back after --------------
       tmpTarget
         .set(bx, by, 0)
         .normalize()
-        .multiplyScalar(1.2 * dis)
-      tmpTarget.z += Math.sin(state.clock.elapsedTime * 2.2 + s.phase) * 0.4 * dis
-      const ko = 18
-      const co = 5
+        .multiplyScalar(1.15 * dis)
+      tmpTarget.z += Math.sin(state.clock.elapsedTime * 2.4 + s.phase) * 0.35 * dis
+      const ko = 16
+      const co = 4.2 // underdamped: springy re-entry into orbit
       s.offsetVel.x += (ko * (tmpTarget.x - s.offset.x) - co * s.offsetVel.x) * dt
       s.offsetVel.y += (ko * (tmpTarget.y - s.offset.y) - co * s.offsetVel.y) * dt
       s.offsetVel.z += (ko * (tmpTarget.z - s.offset.z) - co * s.offsetVel.z) * dt
       s.offset.addScaledVector(s.offsetVel, dt)
 
-      sat.position.set(bx + s.offset.x, by + s.offset.y, s.offset.z)
-      sat.rotateOnAxis(s.spinAxis, (0.35 + 2.5 * dis) * dt)
+      cluster.position.set(bx + s.offset.x, by + s.offset.y, s.offset.z)
 
-      // Uniforms.
-      s.satUniforms.uTime.value += dt
-      s.satUniforms.uScale.value = scale
-      s.satUniforms.uDisrupt.value = dis
+      // Independent tumble while free.
+      cluster.rotateOnAxis(s.spinAxis, (0.25 + 3.0 * dis) * dt)
+
+      // --- Uniforms -------------------------------------------------------
+      s.clusterUniforms.uTime.value += dt
+      s.clusterUniforms.uScale.value = scale
+      s.clusterUniforms.uDisrupt.value = dis
       s.trailUniforms.uScale.value = scale
       s.trailUniforms.uFade.value = THREE.MathUtils.clamp(dis * 1.2, 0, 1)
 
-      // Trail ring buffer.
+      // --- Trail ring buffer (positions in the orbit-plane group space) ---
       const attr = trail.geometry.getAttribute('position')
       const arr = attr.array
       if (!s.trailInit) {
         for (let j = 0; j < TRAIL; j++) {
-          arr[j * 3] = sat.position.x
-          arr[j * 3 + 1] = sat.position.y
-          arr[j * 3 + 2] = sat.position.z
+          arr[j * 3] = cluster.position.x
+          arr[j * 3 + 1] = cluster.position.y
+          arr[j * 3 + 2] = cluster.position.z
         }
         s.trailInit = true
       } else {
         arr.copyWithin(3, 0, (TRAIL - 1) * 3)
-        arr[0] = sat.position.x
-        arr[1] = sat.position.y
-        arr[2] = sat.position.z
+        arr[0] = cluster.position.x
+        arr[1] = cluster.position.y
+        arr[2] = cluster.position.z
       }
       attr.needsUpdate = true
 
-      // Orbit ring.
+      // --- Orbit ring accent ----------------------------------------------
       const ringMat = ringMatRefs.current[i]
       if (ringMat) {
-        ringMat.opacity = 0.08 + 0.14 * dis
-        ringMat.color.copy(white).lerp(blue, dis * 0.7)
+        ringMat.opacity = 0.05 + 0.1 * dis
+        ringMat.color.copy(white).lerp(blue, dis * 0.6)
       }
     }
   })
@@ -281,21 +257,21 @@ export default function Satellites() {
             <lineBasicMaterial
               ref={(m) => (ringMatRefs.current[i] = m)}
               transparent
-              opacity={0.08}
+              opacity={0.05}
               color="#f5f5f5"
               depthWrite={false}
             />
           </lineLoop>
           <points
-            ref={(p) => (satRefs.current[i] = p)}
-            geometry={s.satGeo}
+            ref={(p) => (clusterRefs.current[i] = p)}
+            geometry={s.clusterGeo}
             frustumCulled={false}
             renderOrder={3}
           >
             <shaderMaterial
-              vertexShader={satVertexShader}
+              vertexShader={clusterVertex}
               fragmentShader={dotFragment}
-              uniforms={s.satUniforms}
+              uniforms={s.clusterUniforms}
               transparent
               depthWrite={false}
             />

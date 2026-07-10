@@ -31,9 +31,9 @@ void main() {
   // Gentle breathing.
   float r = uRadius * (1.0 + 0.012 * sin(uTime * 0.55));
 
-  // Per-particle living-surface noise — kept subtle so the lattice stays clean.
+  // Per-particle living-surface noise.
   float living = snoise(n * 2.6 + vec3(0.0, uTime * 0.13, uTime * 0.05));
-  r += living * 0.016;
+  r += living * 0.035;
 
   vec3 p = n * r;
   float accent = 0.0;
@@ -43,28 +43,18 @@ void main() {
 
   // Elastic attraction at mid range: particles lean toward the cursor.
   float att = exp(-pow(d / 1.05, 2.0)) * uHover;
-  p += normalize(uPointer - p + vec3(1e-4)) * att * 0.12;
+  p += normalize(uPointer - p + vec3(1e-4)) * att * 0.14;
 
-  // Spring repulsion up close: a localized dent pressed INTO the shell.
-  float rep = exp(-pow(d / 0.5, 2.0)) * uHover;
-  p -= n * rep * (0.26 + aRand.w * 0.16);              // push inward -> dent
-  p += (aRand.xyz - 0.5) * rep * 0.08;                 // slight scatter
+  // Spring repulsion up close: localized dent + scatter.
+  float rep = exp(-pow(d / 0.48, 2.0)) * uHover;
+  vec3 away = normalize(p - uPointer + (aRand.xyz - 0.5) * 0.5);
+  p += away * rep * (0.32 + aRand.w * 0.5);
 
-  // Magnetic ripple: particles swirl tangentially around the cursor like
-  // filings around a magnetic pole, waves flowing between neighbours.
-  vec3 axis = normalize(uPointer + vec3(1e-4));
-  vec3 tang = cross(axis, n);
-  float tl = length(tang);
-  if (tl > 1e-4) {
-    tang /= tl;
-    float mag = exp(-pow(d / 0.95, 2.0)) * uHover;
-    float wave = sin(uTime * 4.0 - d * 7.0 + aRand.x * 0.8);
-    p += tang * mag * wave * 0.12;
-    p += n * mag * sin(uTime * 4.0 - d * 7.0) * 0.05;
-    accent += mag * (0.5 + 0.5 * wave) * 0.4;
-  }
+  // Shell opening: wider outward push reveals the nucleus.
+  float open = exp(-pow(d / 0.85, 2.0)) * uHover;
+  p += n * open * 0.3 * (0.4 + aRand.x * 0.8);
 
-  accent += rep * 0.35;
+  accent += rep * 0.9 + open * 0.25;
 
   // --- Expanding ripples ------------------------------------------------
   for (int i = 0; i < ${MAX_RIPPLES}; i++) {
@@ -73,24 +63,25 @@ void main() {
     float ad = distance(n, normalize(uRippleO[i])); // chord distance on unit sphere
     float ring = ad - t * 0.85;
     float w = exp(-ring * ring * 55.0) * exp(-t * 1.9);
-    p += n * w * (0.12 + aRand.y * 0.06);
-    accent += w * 0.2;
+    p += n * w * (0.14 + aRand.y * 0.07);
+    accent += w * 0.35;
   }
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
 
-  // Camera-facing billboard quad — fairly uniform size for a crisp lattice.
-  float size = uPixelScale * (0.88 + aRand.y * 0.24) * (1.0 + accent * 0.15);
+  // Camera-facing billboard quad.
+  float wobble = accent + rep;
+  float size = uPixelScale * (0.72 + aRand.y * 0.56) * (1.0 + wobble * 0.35);
   mv.xy += position.xy * size;
 
   gl_Position = projectionMatrix * mv;
 
-  // Front hemisphere at full 100% opacity; back hemisphere hidden entirely
-  // (and additionally occluded by the solid core mesh).
+  // Depth cue: far-side particles fade almost out.
   vec3 vn = normalize(normalMatrix * n);
-  float front = smoothstep(0.0, 0.25, vn.z);      // 0 on back, 1 on front
-  vAlpha = front;
-  vAccent = clamp(accent, 0.0, 1.0) * 0.3;
+  float facing = pow(vn.z * 0.5 + 0.5, 1.6);
+  vAlpha = (0.30 + aRand.z * 0.55) * (0.06 + 0.94 * facing);
+  vAlpha *= 1.0 - clamp(rep * 0.5, 0.0, 0.55); // scattered particles thin out
+  vAccent = clamp(accent, 0.0, 1.0) * 0.28;
   vUv = uv;
 }
 `
@@ -102,9 +93,9 @@ varying vec2 vUv;
 
 void main() {
   float d = length(vUv - 0.5);
-  float a = smoothstep(0.5, 0.4, d) * vAlpha;   // crisp, solid dot
+  float a = smoothstep(0.5, 0.30, d) * vAlpha;
   if (a < 0.004) discard;
-  vec3 col = mix(vec3(1.0), vec3(0.137, 0.282, 1.0), vAccent);
+  vec3 col = mix(vec3(0.96), vec3(0.137, 0.282, 1.0), vAccent);
   gl_FragColor = vec4(col, a);
 }
 `
@@ -152,7 +143,7 @@ export default function ParticleShell() {
     () => ({
       uTime: { value: 0 },
       uRadius: { value: PLANET_RADIUS },
-      uPixelScale: { value: 0.036 },
+      uPixelScale: { value: 0.032 },
       uPointer: { value: new THREE.Vector3(0, 0, PLANET_RADIUS) },
       uHover: { value: 0 },
       uRippleO: { value: Array.from({ length: MAX_RIPPLES }, () => new THREE.Vector3(0, 1, 0)) },
