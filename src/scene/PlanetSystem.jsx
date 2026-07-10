@@ -2,7 +2,6 @@ import React, { createContext, useContext, useMemo, useRef, useEffect } from 're
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import ParticleShell from './ParticleShell.jsx'
-import Nucleus from './Nucleus.jsx'
 import Satellites from './Satellites.jsx'
 import Dust from './Dust.jsx'
 
@@ -112,7 +111,6 @@ export default function PlanetSystem() {
     <InteractionContext.Provider value={inter}>
       <group ref={groupRef}>
         <ParticleShell />
-        <Nucleus />
         <Satellites />
         <Dust />
       </group>

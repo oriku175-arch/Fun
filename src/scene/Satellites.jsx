@@ -22,19 +22,19 @@ void main() {
   vec3 n = aBase;
   // Fixed radius -> clean little globe. Particles only scatter when disrupted.
   vec3 p = n * uRadius;
-  p += n * uDisrupt * (0.12 + aRand * 0.35);  // shell puffs apart on disruption
+  p += n * uDisrupt * (0.06 + aRand * 0.16);  // gentle puff on disruption
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
   gl_Position = projectionMatrix * mv;
 
-  float size = (0.012 + aRand * 0.014) * (1.0 + uDisrupt * 0.6);
+  float size = (0.012 + aRand * 0.014) * (1.0 + uDisrupt * 0.3);
   gl_PointSize = size * uScale / -mv.z;
 
   // Solid-looking front hemisphere, faded back — same read as the planet.
   vec3 vn = normalize(normalMatrix * n);
   float facing = pow(vn.z * 0.5 + 0.5, 1.8);
   vAlpha = (0.55 + aRand * 0.45) * (0.12 + 0.88 * facing);
-  vAccent = uDisrupt * 0.5 * aRand;
+  vAccent = uDisrupt * 0.22 * aRand;   // barely-there blue tint
 }
 `
 

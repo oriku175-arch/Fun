@@ -31,9 +31,9 @@ void main() {
   // Gentle breathing.
   float r = uRadius * (1.0 + 0.012 * sin(uTime * 0.55));
 
-  // Per-particle living-surface noise.
+  // Per-particle living-surface noise — kept subtle so the lattice stays clean.
   float living = snoise(n * 2.6 + vec3(0.0, uTime * 0.13, uTime * 0.05));
-  r += living * 0.035;
+  r += living * 0.016;
 
   vec3 p = n * r;
   float accent = 0.0;
@@ -43,18 +43,14 @@ void main() {
 
   // Elastic attraction at mid range: particles lean toward the cursor.
   float att = exp(-pow(d / 1.05, 2.0)) * uHover;
-  p += normalize(uPointer - p + vec3(1e-4)) * att * 0.14;
+  p += normalize(uPointer - p + vec3(1e-4)) * att * 0.12;
 
-  // Spring repulsion up close: localized dent + scatter.
-  float rep = exp(-pow(d / 0.48, 2.0)) * uHover;
-  vec3 away = normalize(p - uPointer + (aRand.xyz - 0.5) * 0.5);
-  p += away * rep * (0.32 + aRand.w * 0.5);
+  // Spring repulsion up close: a localized dent pressed INTO the shell.
+  float rep = exp(-pow(d / 0.5, 2.0)) * uHover;
+  p -= n * rep * (0.26 + aRand.w * 0.16);              // push inward -> dent
+  p += (aRand.xyz - 0.5) * rep * 0.08;                 // slight scatter
 
-  // Shell opening: wider outward push reveals the nucleus.
-  float open = exp(-pow(d / 0.85, 2.0)) * uHover;
-  p += n * open * 0.3 * (0.4 + aRand.x * 0.8);
-
-  accent += rep * 0.9 + open * 0.25;
+  accent += rep * 0.35;
 
   // --- Expanding ripples ------------------------------------------------
   for (int i = 0; i < ${MAX_RIPPLES}; i++) {
@@ -63,27 +59,25 @@ void main() {
     float ad = distance(n, normalize(uRippleO[i])); // chord distance on unit sphere
     float ring = ad - t * 0.85;
     float w = exp(-ring * ring * 55.0) * exp(-t * 1.9);
-    p += n * w * (0.14 + aRand.y * 0.07);
-    accent += w * 0.35;
+    p += n * w * (0.12 + aRand.y * 0.06);
+    accent += w * 0.2;
   }
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
 
-  // Camera-facing billboard quad.
-  float wobble = accent + rep;
-  float size = uPixelScale * (0.72 + aRand.y * 0.56) * (1.0 + wobble * 0.35);
+  // Camera-facing billboard quad — fairly uniform size for a crisp lattice.
+  float size = uPixelScale * (0.88 + aRand.y * 0.24) * (1.0 + accent * 0.15);
   mv.xy += position.xy * size;
 
   gl_Position = projectionMatrix * mv;
 
-  // Depth cue: far-side particles fade to nothing so the shell reads as a
-  // solid, hollow globe — you should not see through to the back hemisphere.
+  // Depth cue: the far hemisphere is fully hidden so the shell reads as a
+  // solid, hollow globe — nothing is ever visible through it to the inside.
   vec3 vn = normalize(normalMatrix * n);
-  float front = smoothstep(-0.1, 0.35, vn.z);   // 0 on back, 1 on front
-  float facing = pow(vn.z * 0.5 + 0.5, 2.2);
-  vAlpha = (0.5 + aRand.z * 0.5) * facing * front;
-  vAlpha *= 1.0 - clamp(rep * 0.45, 0.0, 0.5);   // scattered particles thin out
-  vAccent = clamp(accent, 0.0, 1.0) * 0.28;
+  float front = smoothstep(0.0, 0.4, vn.z);       // 0 on back, 1 on front
+  float facing = pow(vn.z * 0.5 + 0.5, 1.6);
+  vAlpha = (0.7 + aRand.z * 0.3) * facing * front;
+  vAccent = clamp(accent, 0.0, 1.0) * 0.12;   // barely-there blue accent
   vUv = uv;
 }
 `
@@ -145,7 +139,7 @@ export default function ParticleShell() {
     () => ({
       uTime: { value: 0 },
       uRadius: { value: PLANET_RADIUS },
-      uPixelScale: { value: 0.032 },
+      uPixelScale: { value: 0.036 },
       uPointer: { value: new THREE.Vector3(0, 0, PLANET_RADIUS) },
       uHover: { value: 0 },
       uRippleO: { value: Array.from({ length: MAX_RIPPLES }, () => new THREE.Vector3(0, 1, 0)) },
