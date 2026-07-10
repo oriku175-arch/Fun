@@ -37,10 +37,10 @@ void main() {
   float size = (0.014 + aRand * 0.018) * (1.0 + uReveal * 0.35); // world units
   gl_PointSize = size * uScale / -mv.z;
 
-  // Brighten mostly on the side where the shell is opening.
+  // Only visible when hovering (reveal > 0.05); brighten on cursor-facing side.
   float side = 0.25 + 0.75 * smoothstep(-0.2, 0.95, dot(normalize(p + vec3(1e-4)), normalize(uPointer)));
-  vAlpha = (0.04 + aRand * 0.06) + uReveal * side * (0.16 + aRand * 0.28);
-  vAccent = uReveal * side * 0.22 * aRand;
+  vAlpha = uReveal * side * (0.24 + aRand * 0.36);
+  vAccent = uReveal * side * 0.28 * aRand;
 }
 `
 

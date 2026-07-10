@@ -79,8 +79,8 @@ void main() {
   // Depth cue: far-side particles fade almost out.
   vec3 vn = normalize(normalMatrix * n);
   float facing = pow(vn.z * 0.5 + 0.5, 1.6);
-  vAlpha = (0.30 + aRand.z * 0.55) * (0.06 + 0.94 * facing);
-  vAlpha *= 1.0 - clamp(rep * 0.5, 0.0, 0.55); // scattered particles thin out
+  vAlpha = (0.38 + aRand.z * 0.62) * (0.15 + 0.85 * facing);
+  vAlpha *= 1.0 - clamp(rep * 0.45, 0.0, 0.5); // scattered particles thin out
   vAccent = clamp(accent, 0.0, 1.0) * 0.28;
   vUv = uv;
 }
