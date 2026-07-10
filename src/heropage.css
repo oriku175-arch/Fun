@@ -1,4 +1,4 @@
-/* ---- Observation deck: centered planet, small flat monitoring windows ---- */
+/* ---- Observation deck: centered planet, minimal instrument chrome -------- */
 
 :root {
   --accent: #2348ff;
@@ -8,6 +8,12 @@
   --ink-faint: rgba(235, 235, 235, 0.2);
   --edge: rgba(255, 255, 255, 0.14);
   --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* solar mode retints the HUD accents to match the scene */
+.hero.solar {
+  --accent: #ff6b14;
+  --accent-soft: rgba(255, 140, 60, 0.6);
 }
 
 .hero {
@@ -33,7 +39,8 @@
   color: var(--ink);
 }
 
-.hud a {
+.hud a,
+.hud button {
   pointer-events: auto;
 }
 
@@ -63,8 +70,9 @@
   width: 5px;
   height: 5px;
   background: var(--accent);
-  box-shadow: 0 0 8px rgba(35, 72, 255, 0.9);
+  box-shadow: 0 0 8px var(--accent-soft);
   animation: pulse 2.6s ease-in-out infinite;
+  transition: background 0.6s ease;
 }
 
 /* ---- top-right nav --------------------------------------------------------- */
@@ -96,7 +104,7 @@
 
 .title-block {
   position: absolute;
-  top: 56px;
+  top: 34px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -108,97 +116,50 @@
   font-weight: 500;
   letter-spacing: 0.42em;
   color: var(--ink);
-  margin-bottom: 10px;
   white-space: nowrap;
 }
 
-.subtitle {
-  font-size: 9px;
-  letter-spacing: 0.3em;
-  color: var(--ink-faint);
-  white-space: nowrap;
-}
+/* ---- bottom corners ---------------------------------------------------------- */
 
-/* ---- side monitoring windows ------------------------------------------------ */
-
-.panel {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 232px;
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  animation: fade 1s ease-out 0.2s both;
-}
-
-.panel-left { left: 24px; }
-.panel-right { right: 24px; }
-
-.panel header {
-  padding: 7px 10px;
-  border-bottom: 1px solid var(--edge);
-  font-size: 9px;
-  letter-spacing: 0.26em;
-  color: var(--ink-dim);
-}
-
-.panel header i {
-  font-style: normal;
-  color: var(--accent-soft);
-}
-
-.panel .body {
-  padding: 8px 10px 10px;
-}
-
-.kv {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 3.5px 0;
-  color: var(--ink-dim);
-  line-height: 1.5;
-}
-
-.kv span:last-child {
-  color: var(--ink);
-}
-
-.kv.note {
-  display: block;
-  color: var(--ink-faint);
-  padding-bottom: 7px;
-}
-
-.kv .ok {
-  color: var(--accent-soft) !important;
-}
-
-/* ---- bottom line ------------------------------------------------------------- */
-
-.stage-block {
+.foot-left {
   position: absolute;
   bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
-  letter-spacing: 0.4em;
-  color: var(--ink-dim);
-  white-space: nowrap;
-}
-
-.foot-left,
-.foot-right {
-  position: absolute;
-  bottom: 30px;
+  left: 24px;
   font-size: 9px;
   letter-spacing: 0.24em;
   color: var(--ink-faint);
   white-space: nowrap;
 }
 
-.foot-left { left: 24px; }
-.foot-right { right: 24px; color: var(--ink-dim); }
+/* ---- spectrum toggle ----------------------------------------------------------- */
+
+.mode-btn {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  color: var(--ink);
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: border-color 0.25s ease;
+}
+
+.mode-btn:hover {
+  border-color: var(--accent-soft);
+}
+
+.mode-btn .swatch {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-soft);
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
 
 /* ---- viewfinder corners --------------------------------------------------------- */
 
@@ -228,13 +189,8 @@
 
 /* ---- responsive --------------------------------------------------------------------- */
 
-@media (max-width: 1000px) {
-  .panel { display: none; }
-}
-
 @media (max-width: 700px) {
-  .title { white-space: normal; letter-spacing: 0.3em; }
-  .subtitle { white-space: normal; }
+  .title { letter-spacing: 0.3em; }
   .nav a:not(:last-child) { display: none; }
-  .foot-right, .corner { display: none; }
+  .corner { display: none; }
 }

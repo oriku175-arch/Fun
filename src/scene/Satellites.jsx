@@ -2,6 +2,7 @@ import React, { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useInteraction } from './PlanetSystem.jsx'
+import { PALETTE } from './shaders.js'
 
 const SAT_COUNT = 10
 const CLUSTER = 90
@@ -12,6 +13,7 @@ attribute float aRand;
 uniform float uTime;
 uniform float uScale;
 uniform float uDisrupt;
+uniform float uSolar;
 varying float vAlpha;
 varying float vAccent;
 
@@ -29,7 +31,8 @@ void main() {
   gl_PointSize = (0.018 + aRand * 0.02) * uScale / -mv.z;
 
   vAlpha = 0.35 + aRand * 0.55;
-  vAccent = uDisrupt * 0.45 * aRand;
+  // Solar mode: clusters glow like embers even at rest.
+  vAccent = (uDisrupt * 0.45 + uSolar * 0.4) * aRand;
 }
 `
 
@@ -50,6 +53,7 @@ void main() {
 `
 
 const dotFragment = /* glsl */ `
+${PALETTE}
 varying float vAlpha;
 varying float vAccent;
 
@@ -57,8 +61,7 @@ void main() {
   vec2 c = gl_PointCoord - 0.5;
   float a = smoothstep(0.5, 0.26, length(c)) * vAlpha;
   if (a < 0.004) discard;
-  vec3 col = mix(vec3(0.96), vec3(0.137, 0.282, 1.0), clamp(vAccent, 0.0, 1.0));
-  gl_FragColor = vec4(col, a);
+  gl_FragColor = vec4(palette(vAccent), a);
 }
 `
 
@@ -139,10 +142,12 @@ export default function Satellites() {
           uTime: { value: rng() * 100 },
           uScale: { value: 1000 },
           uDisrupt: { value: 0 },
+          uSolar: { value: 0 },
         },
         trailUniforms: {
           uScale: { value: 1000 },
           uFade: { value: 0 },
+          uSolar: { value: 0 },
         },
         // simulation state
         angle: rng() * Math.PI * 2,
@@ -164,6 +169,10 @@ export default function Satellites() {
   const tmpTarget = useMemo(() => new THREE.Vector3(), [])
   const white = useMemo(() => new THREE.Color(0.96, 0.96, 0.96), [])
   const blue = useMemo(() => new THREE.Color('#2348FF'), [])
+  const orange = useMemo(() => new THREE.Color('#ff4d06'), [])
+  const yellow = useMemo(() => new THREE.Color('#ffc24d'), [])
+  const tmpColA = useMemo(() => new THREE.Color(), [])
+  const tmpColB = useMemo(() => new THREE.Color(), [])
 
   useFrame((state, delta) => {
     const dt = Math.min(delta, 1 / 30)
@@ -219,8 +228,10 @@ export default function Satellites() {
       s.clusterUniforms.uTime.value += dt
       s.clusterUniforms.uScale.value = scale
       s.clusterUniforms.uDisrupt.value = dis
+      s.clusterUniforms.uSolar.value = inter.solar
       s.trailUniforms.uScale.value = scale
       s.trailUniforms.uFade.value = THREE.MathUtils.clamp(dis * 1.2, 0, 1)
+      s.trailUniforms.uSolar.value = inter.solar
 
       // --- Trail ring buffer (positions in the orbit-plane group space) ---
       const attr = trail.geometry.getAttribute('position')
@@ -240,13 +251,16 @@ export default function Satellites() {
       }
       attr.needsUpdate = true
 
-      // --- Orbit ring: only fades in for THIS satellite while it's the one
-      // being disrupted — never shown for the other, uninvolved satellites.
+      // --- Orbit ring: always visible at a quiet baseline (one per real
+      // satellite), brightening for whichever one is being disrupted.
       const ringMat = ringMatRefs.current[i]
       if (ringMat) {
-        const target = THREE.MathUtils.clamp(dis, 0, 1) * 0.45
+        const target = 0.10 + THREE.MathUtils.clamp(dis, 0, 1) * 0.4
         ringMat.opacity += (target - ringMat.opacity) * (1 - Math.exp(-6 * dt))
-        ringMat.color.copy(white).lerp(blue, Math.min(dis, 1) * 0.6)
+        const f = Math.min(dis, 1) * 0.6
+        tmpColA.copy(white).lerp(blue, f)
+        tmpColB.copy(orange).lerp(yellow, f)
+        ringMat.color.copy(tmpColA).lerp(tmpColB, inter.solar)
       }
     }
   })

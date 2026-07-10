@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { DOT_FRAGMENT } from './shaders.js'
+import { useInteraction } from './PlanetSystem.jsx'
 
 const COUNT = 900
 
@@ -32,6 +33,7 @@ void main() {
 `
 
 export default function Dust() {
+  const inter = useInteraction()
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry()
     const pos = new Float32Array(COUNT * 3)
@@ -56,12 +58,14 @@ export default function Dust() {
     () => ({
       uTime: { value: 0 },
       uScale: { value: 1000 },
+      uSolar: { value: 0 },
     }),
     [],
   )
 
   useFrame((state, delta) => {
     uniforms.uTime.value += Math.min(delta, 1 / 30)
+    uniforms.uSolar.value = inter.solar
     const fov = (state.camera.fov * Math.PI) / 180
     uniforms.uScale.value =
       (state.size.height * state.gl.getPixelRatio()) / (2 * Math.tan(fov / 2))

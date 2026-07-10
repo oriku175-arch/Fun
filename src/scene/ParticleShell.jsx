@@ -1,7 +1,7 @@
 import React, { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
-import { SNOISE } from './shaders.js'
+import { SNOISE, PALETTE } from './shaders.js'
 import { useInteraction, PLANET_RADIUS } from './PlanetSystem.jsx'
 
 const COUNT = 20000
@@ -18,6 +18,7 @@ uniform float uRadius;
 uniform float uPixelScale;
 uniform vec3 uPointer;      // local-space disruptor point on the sphere
 uniform float uHover;       // spring-smoothed 0..1 (may overshoot)
+uniform float uSolar;
 uniform vec3 uRippleO[${MAX_RIPPLES}];
 uniform float uRippleT[${MAX_RIPPLES}]; // age in seconds, < 0 = inactive
 
@@ -82,11 +83,15 @@ void main() {
   vAlpha = (0.30 + aRand.z * 0.55) * (0.06 + 0.94 * facing);
   vAlpha *= 1.0 - clamp(rep * 0.5, 0.0, 0.55); // scattered particles thin out
   vAccent = clamp(accent, 0.0, 1.0) * 0.28;
+  // Solar mode: the surface noise mottles the palette like granulation and
+  // flares — brighter yellow cells over the orange base.
+  vAccent = clamp(vAccent + uSolar * (0.16 + 0.30 * living), 0.0, 1.0);
   vUv = uv;
 }
 `
 
 const fragmentShader = /* glsl */ `
+${PALETTE}
 varying float vAlpha;
 varying float vAccent;
 varying vec2 vUv;
@@ -95,8 +100,7 @@ void main() {
   float d = length(vUv - 0.5);
   float a = smoothstep(0.5, 0.30, d) * vAlpha;
   if (a < 0.004) discard;
-  vec3 col = mix(vec3(0.96), vec3(0.137, 0.282, 1.0), vAccent);
-  gl_FragColor = vec4(col, a);
+  gl_FragColor = vec4(palette(vAccent), a);
 }
 `
 
@@ -146,6 +150,7 @@ export default function ParticleShell() {
       uPixelScale: { value: 0.032 },
       uPointer: { value: new THREE.Vector3(0, 0, PLANET_RADIUS) },
       uHover: { value: 0 },
+      uSolar: { value: 0 },
       uRippleO: { value: Array.from({ length: MAX_RIPPLES }, () => new THREE.Vector3(0, 1, 0)) },
       uRippleT: { value: new Float32Array(MAX_RIPPLES).fill(-1) },
     }),
@@ -157,6 +162,7 @@ export default function ParticleShell() {
     const u = uniforms
     u.uTime.value += dt
     u.uHover.value = inter.strength
+    u.uSolar.value = inter.solar
     u.uPointer.value.copy(inter.localPoint)
 
     // Age ripples; retire old ones.

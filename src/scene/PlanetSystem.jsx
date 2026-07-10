@@ -7,6 +7,9 @@ import Dust from './Dust.jsx'
 
 export const PLANET_RADIUS = 2.2
 
+// Toggled from the HUD (outside the canvas); read every frame inside it.
+export const modeStore = { solar: false }
+
 const InteractionContext = createContext(null)
 export const useInteraction = () => useContext(InteractionContext)
 
@@ -28,6 +31,7 @@ export default function PlanetSystem() {
       localPoint: new THREE.Vector3(0, 0, PLANET_RADIUS), // same, in rotating-group space
       strength: 0, // spring value, 0..~1 (can overshoot)
       strengthVel: 0,
+      solar: 0, // smoothed 0..1 crossfade between mono and solar palettes
       group: null,
     }),
     [],
@@ -71,6 +75,10 @@ export default function PlanetSystem() {
 
     // Idle: slow continuous Y rotation of the whole system.
     group.rotation.y += dt * 0.05
+
+    // Smooth crossfade toward the selected color mode (~0.8s).
+    const solarTarget = modeStore.solar ? 1 : 0
+    inter.solar += (solarTarget - inter.solar) * (1 - Math.exp(-4 * dt))
 
     // Resolve pointer against the planet sphere (centered at world origin).
     let target = 0

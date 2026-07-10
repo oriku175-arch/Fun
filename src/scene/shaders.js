@@ -68,8 +68,21 @@ float snoise(vec3 v) {
 }
 `
 
+// Two palettes, crossfaded by uSolar (0 = mono/blue, 1 = solar/flare).
+export const PALETTE = /* glsl */ `
+uniform float uSolar;
+
+vec3 palette(float accent) {
+  vec3 base = mix(vec3(0.96), vec3(0.98, 0.17, 0.0), uSolar);
+  vec3 acc  = mix(vec3(0.137, 0.282, 1.0), vec3(1.0, 0.58, 0.06), uSolar);
+  // Overbright in solar mode so the bloom flares like a real corona.
+  return mix(base, acc, clamp(accent, 0.0, 1.0)) * (1.0 + uSolar * 0.4);
+}
+`
+
 // Round, soft dot for point sprites.
 export const DOT_FRAGMENT = /* glsl */ `
+${PALETTE}
 varying float vAlpha;
 varying float vAccent;
 
@@ -78,8 +91,7 @@ void main() {
   float d = length(c);
   float a = smoothstep(0.5, 0.28, d) * vAlpha;
   if (a < 0.004) discard;
-  vec3 col = mix(vec3(0.96), vec3(0.137, 0.282, 1.0), clamp(vAccent, 0.0, 1.0));
-  gl_FragColor = vec4(col, a);
+  gl_FragColor = vec4(palette(vAccent), a);
 }
 `
 
