@@ -251,11 +251,11 @@ export default function Satellites() {
       }
       attr.needsUpdate = true
 
-      // --- Orbit ring: always visible at a quiet baseline (one per real
-      // satellite), brightening for whichever one is being disrupted.
+      // --- Orbit ring: only fades in for THIS satellite while it's the one
+      // being disrupted — hidden at rest, never shown for the others.
       const ringMat = ringMatRefs.current[i]
       if (ringMat) {
-        const target = 0.10 + THREE.MathUtils.clamp(dis, 0, 1) * 0.4
+        const target = THREE.MathUtils.clamp(dis, 0, 1) * 0.45
         ringMat.opacity += (target - ringMat.opacity) * (1 - Math.exp(-6 * dt))
         const f = Math.min(dis, 1) * 0.6
         tmpColA.copy(white).lerp(blue, f)
