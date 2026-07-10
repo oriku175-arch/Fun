@@ -110,6 +110,12 @@ export default function PlanetSystem() {
   return (
     <InteractionContext.Provider value={inter}>
       <group ref={groupRef}>
+        {/* Solid matte core: writes depth so nothing behind or inside the
+            planet is ever visible through it — a truly hollow-looking globe. */}
+        <mesh>
+          <sphereGeometry args={[PLANET_RADIUS * 0.955, 64, 64]} />
+          <meshBasicMaterial color="#050505" />
+        </mesh>
         <ParticleShell />
         <Satellites />
         <Dust />

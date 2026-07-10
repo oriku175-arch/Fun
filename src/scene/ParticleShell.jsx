@@ -50,6 +50,20 @@ void main() {
   p -= n * rep * (0.26 + aRand.w * 0.16);              // push inward -> dent
   p += (aRand.xyz - 0.5) * rep * 0.08;                 // slight scatter
 
+  // Magnetic ripple: particles swirl tangentially around the cursor like
+  // filings around a magnetic pole, waves flowing between neighbours.
+  vec3 axis = normalize(uPointer + vec3(1e-4));
+  vec3 tang = cross(axis, n);
+  float tl = length(tang);
+  if (tl > 1e-4) {
+    tang /= tl;
+    float mag = exp(-pow(d / 0.95, 2.0)) * uHover;
+    float wave = sin(uTime * 4.0 - d * 7.0 + aRand.x * 0.8);
+    p += tang * mag * wave * 0.12;
+    p += n * mag * sin(uTime * 4.0 - d * 7.0) * 0.05;
+    accent += mag * (0.5 + 0.5 * wave) * 0.4;
+  }
+
   accent += rep * 0.35;
 
   // --- Expanding ripples ------------------------------------------------
@@ -71,13 +85,12 @@ void main() {
 
   gl_Position = projectionMatrix * mv;
 
-  // Depth cue: the far hemisphere is fully hidden so the shell reads as a
-  // solid, hollow globe — nothing is ever visible through it to the inside.
+  // Front hemisphere at full 100% opacity; back hemisphere hidden entirely
+  // (and additionally occluded by the solid core mesh).
   vec3 vn = normalize(normalMatrix * n);
-  float front = smoothstep(0.0, 0.4, vn.z);       // 0 on back, 1 on front
-  float facing = pow(vn.z * 0.5 + 0.5, 1.6);
-  vAlpha = (0.7 + aRand.z * 0.3) * facing * front;
-  vAccent = clamp(accent, 0.0, 1.0) * 0.12;   // barely-there blue accent
+  float front = smoothstep(0.0, 0.25, vn.z);      // 0 on back, 1 on front
+  vAlpha = front;
+  vAccent = clamp(accent, 0.0, 1.0) * 0.3;
   vUv = uv;
 }
 `
@@ -89,9 +102,9 @@ varying vec2 vUv;
 
 void main() {
   float d = length(vUv - 0.5);
-  float a = smoothstep(0.5, 0.30, d) * vAlpha;
+  float a = smoothstep(0.5, 0.4, d) * vAlpha;   // crisp, solid dot
   if (a < 0.004) discard;
-  vec3 col = mix(vec3(0.96), vec3(0.137, 0.282, 1.0), vAccent);
+  vec3 col = mix(vec3(1.0), vec3(0.137, 0.282, 1.0), vAccent);
   gl_FragColor = vec4(col, a);
 }
 `
