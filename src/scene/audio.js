@@ -164,25 +164,41 @@ class SpaceAudio {
     }
   }
 
-  // Satellite ping — plays the bundled MP3 sample on hover. Slight per-
-  // satellite pitch variation keeps repeated hovers from sounding identical.
+  // Satellite ping — the bundled sample, but pitched down and band-limited
+  // so it reads as a quiet, dark metallic tick in space rather than a bright
+  // piano note. Slight per-satellite pitch variation avoids repetition.
   satellitePing(seed = 0) {
     if (!this.ctx || !this.enabled || !this.pingBuffer) return
     const ctx = this.ctx
     const now = ctx.currentTime
 
     // Throttle so sweeping across clusters doesn't machine-gun the sample.
-    if (now - this.lastPingAt < 0.05) return
+    if (now - this.lastPingAt < 0.06) return
     this.lastPingAt = now
 
     const src = ctx.createBufferSource()
     src.buffer = this.pingBuffer
-    src.playbackRate.value = 0.94 + (seed % 5) * 0.03 // subtle detune per sat
+    src.playbackRate.value = 0.78 + (seed % 5) * 0.02 // darker, subtly varied
 
+    // Band-limit: trim the low body and the bright top so what's left is a
+    // thin metallic sheen — cold and distant.
+    const hp = ctx.createBiquadFilter()
+    hp.type = 'highpass'
+    hp.frequency.value = 620
+    hp.Q.value = 0.5
+    const lp = ctx.createBiquadFilter()
+    lp.type = 'lowpass'
+    lp.frequency.value = 2400
+    lp.Q.value = 0.5
+
+    // Short envelope so it's a tick, not a sustained tone; and very quiet.
     const gain = ctx.createGain()
-    gain.gain.value = 0.7
-    src.connect(gain).connect(ctx.destination)
+    gain.gain.setValueAtTime(0.16, now)
+    gain.gain.setTargetAtTime(0.0001, now + 0.05, 0.12)
+
+    src.connect(hp).connect(lp).connect(gain).connect(ctx.destination)
     src.start(now)
+    src.stop(now + 0.9)
   }
 
   // Per-frame modulation. strength is intentionally unused — hovering the

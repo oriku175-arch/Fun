@@ -58,7 +58,8 @@
 }
 
 .intro-inner {
-  max-width: 520px;
+  /* wide enough that the title fits on one line and centers cleanly */
+  max-width: 880px;
   animation: appear 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
 }
 
@@ -80,12 +81,15 @@
 }
 
 .intro-title {
-  font-size: clamp(3rem, 10vw, 6rem);
+  font-size: clamp(2.6rem, 9vw, 6rem);
   font-weight: 200;
   letter-spacing: 0.28em;
   margin: 0 0 22px;
-  /* optical centering against the wide tracking */
-  text-indent: 0.28em;
+  text-align: center;
+  white-space: nowrap;
+  /* compensate the trailing letter-spacing (half a step) so the glyph run
+     sits dead-center rather than shifted left */
+  text-indent: 0.14em;
 }
 
 .intro-sub {

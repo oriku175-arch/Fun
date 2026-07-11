@@ -169,6 +169,7 @@ export default function Satellites() {
 
   const tmpWorld = useMemo(() => new THREE.Vector3(), [])
   const tmpTarget = useMemo(() => new THREE.Vector3(), [])
+  const tmpProj = useMemo(() => new THREE.Vector3(), [])
   const white = useMemo(() => new THREE.Color(0.96, 0.96, 0.96), [])
   const blue = useMemo(() => new THREE.Color('#2348FF'), [])
   const orange = useMemo(() => new THREE.Color('#ff4d06'), [])
@@ -195,13 +196,24 @@ export default function Satellites() {
         const d = inter.ray.distanceToPoint(tmpWorld)
         target = THREE.MathUtils.clamp(1 - (d - 0.35) / 0.75, 0, 1)
       }
-      // Rising-edge ping: fire a futuristic chirp the moment the cursor
-      // engages this satellite. Hysteresis (0.5 up / 0.25 down) prevents it
-      // retriggering on jitter while the cursor lingers.
-      if (!s.pinged && target > 0.5) {
+      // Ping only when the cursor is visually over THIS satellite's dot —
+      // screen-space, not the 3D ray. Otherwise hovering the globe would
+      // ping satellites that merely lie along the ray behind/in front of it.
+      let overSat = false
+      if (inter.active) {
+        tmpProj.copy(tmpWorld).project(state.camera)
+        if (tmpProj.z < 1) {
+          const aspect = state.size.width / state.size.height
+          const dx = (tmpProj.x - inter.ndc.x) * aspect
+          const dy = tmpProj.y - inter.ndc.y
+          if (Math.hypot(dx, dy) < 0.055) overSat = true
+        }
+      }
+      // Rising edge with hysteresis so it fires once per genuine hover.
+      if (!s.pinged && overSat) {
         s.pinged = true
         spaceAudio.satellitePing(s.id)
-      } else if (s.pinged && target < 0.25) {
+      } else if (s.pinged && !overSat) {
         s.pinged = false
       }
 
