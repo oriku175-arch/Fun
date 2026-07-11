@@ -28,6 +28,7 @@
 .hero canvas {
   position: absolute;
   inset: 0;
+  animation: canvasFade 1.2s ease-out;
 }
 
 .hud {
@@ -64,6 +65,7 @@
   align-items: center;
   gap: 8px;
   color: var(--ink);
+  animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .id-block .dot {
@@ -83,6 +85,7 @@
   right: 24px;
   display: flex;
   gap: 22px;
+  animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
 }
 
 .nav a {
@@ -108,7 +111,7 @@
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  animation: fade 1s ease-out both;
+  animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
 }
 
 .title {
@@ -129,6 +132,7 @@
   letter-spacing: 0.24em;
   color: var(--ink-faint);
   white-space: nowrap;
+  animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
 }
 
 /* ---- bottom-right controls ----------------------------------------------------- */
@@ -141,6 +145,7 @@
   flex-direction: column;
   gap: 12px;
   align-items: flex-end;
+  animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
 }
 
 .mode-btn {
@@ -180,6 +185,7 @@
   width: 16px;
   height: 16px;
   border: 1px solid rgba(235, 235, 235, 0.3);
+  animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
 }
 
 .corner.tl { top: 64px; left: 24px; border-right: none; border-bottom: none; }
@@ -189,14 +195,25 @@
 
 /* ---- animation --------------------------------------------------------------------- */
 
-@keyframes fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.35; }
+}
+
+@keyframes canvasFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ---- responsive --------------------------------------------------------------------- */

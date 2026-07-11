@@ -18,7 +18,50 @@ class SpaceAudio {
     if (this.ctx.state === 'suspended') this.ctx.resume()
     this.enabled = !this.enabled
     this.target = this.enabled ? 1 : 0
+    if (this.enabled) this._playStartupTone()
     return this.enabled
+  }
+
+  _playStartupTone() {
+    if (!this.ctx) return
+    const ctx = this.ctx
+    const now = ctx.currentTime
+
+    // High ringing tone: descends slightly like a power-up, with reverb shimmer.
+    const osc = ctx.createOscillator()
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(1200, now)
+    osc.frequency.exponentialRampToValueAtTime(900, now + 0.4)
+
+    // Tremolo for the shimmer.
+    const trem = ctx.createOscillator()
+    trem.frequency.value = 14
+    const tremGain = ctx.createGain()
+    tremGain.gain.value = 180
+
+    const env = ctx.createGain()
+    env.gain.setValueAtTime(0.08, now)
+    env.gain.exponentialRampToValueAtTime(0.001, now + 0.5)
+
+    // Resonant highpass for a crystalline tone.
+    const filter = ctx.createBiquadFilter()
+    filter.type = 'highpass'
+    filter.frequency.value = 800
+    filter.Q.value = 2
+
+    const out = ctx.createGain()
+    out.gain.value = 1
+    out.connect(ctx.destination)
+
+    trem.connect(tremGain)
+    osc.frequency.setValueAtTime(1200, now)
+    tremGain.connect(osc.frequency)
+    osc.connect(filter).connect(env).connect(out)
+
+    osc.start(now)
+    trem.start(now)
+    osc.stop(now + 0.5)
+    trem.stop(now + 0.5)
   }
 
   _build() {
