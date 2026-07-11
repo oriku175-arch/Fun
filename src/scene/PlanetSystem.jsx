@@ -4,6 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import ParticleShell from './ParticleShell.jsx'
 import Satellites from './Satellites.jsx'
 import Dust from './Dust.jsx'
+import { spaceAudio } from './audio.js'
 
 export const PLANET_RADIUS = 2.2
 
@@ -113,6 +114,9 @@ export default function PlanetSystem() {
     // Pointer point in the rotating group's local space.
     inter.localPoint.copy(inter.worldPoint)
     group.worldToLocal(inter.localPoint)
+
+    // Update the procedural audio with current interaction state.
+    spaceAudio.update(inter.strength, inter.solar)
   })
 
   return (

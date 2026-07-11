@@ -131,12 +131,19 @@
   white-space: nowrap;
 }
 
-/* ---- spectrum toggle ----------------------------------------------------------- */
+/* ---- bottom-right controls ----------------------------------------------------- */
 
-.mode-btn {
+.controls-row {
   position: absolute;
   bottom: 24px;
   right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.mode-btn {
   font-family: var(--mono);
   font-size: 9px;
   letter-spacing: 0.24em;
@@ -156,9 +163,14 @@
 .mode-btn .swatch {
   width: 8px;
   height: 8px;
+  background: var(--ink-faint);
+  box-shadow: none;
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
+
+.mode-btn .swatch.active {
   background: var(--accent);
   box-shadow: 0 0 10px var(--accent-soft);
-  transition: background 0.6s ease, box-shadow 0.6s ease;
 }
 
 /* ---- viewfinder corners --------------------------------------------------------- */

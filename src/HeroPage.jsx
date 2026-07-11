@@ -4,20 +4,27 @@ import { OrbitControls } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette } from '@react-three/postprocessing'
 import { KernelSize } from 'postprocessing'
 import PlanetSystem, { modeStore } from './scene/PlanetSystem.jsx'
+import { spaceAudio } from './scene/audio.js'
 import '@fontsource/ibm-plex-mono/400.css'
 import '@fontsource/ibm-plex-mono/500.css'
 import './heropage.css'
 
 // Observation-deck layout, minimal: the planet is the centerpiece, the HUD
-// is a handful of small mono labels at the edges plus one control — the
-// spectrum (color-mode) toggle. Overlay ignores the pointer except the nav
-// links and the toggle, so the interaction is never blocked.
+// is a handful of small mono labels at the edges plus two controls — the
+// spectrum (color-mode) and audio toggles. Overlay ignores the pointer except
+// the nav links and the toggles, so the interaction is never blocked.
 export default function HeroPage() {
   const [solar, setSolar] = useState(false)
+  const [audio, setAudio] = useState(false)
 
   const toggleMode = () => {
     modeStore.solar = !modeStore.solar
     setSolar(modeStore.solar)
+  }
+
+  const toggleAudio = () => {
+    const enabled = spaceAudio.toggle()
+    setAudio(enabled)
   }
 
   return (
@@ -71,11 +78,17 @@ export default function HeroPage() {
         {/* bottom-left: hint */}
         <div className="foot-left">DRAG TO ORBIT · HOVER TO DISRUPT</div>
 
-        {/* bottom-right: spectrum toggle */}
-        <button className="win mode-btn" onClick={toggleMode} type="button">
-          SPECTRUM: {solar ? 'SOLAR' : 'MONO'}
-          <span className="swatch" />
-        </button>
+        {/* bottom-right: controls */}
+        <div className="controls-row">
+          <button className="win mode-btn" onClick={toggleAudio} type="button">
+            AUDIO: {audio ? 'ON' : 'OFF'}
+            <span className={`swatch ${audio ? 'active' : ''}`} />
+          </button>
+          <button className="win mode-btn" onClick={toggleMode} type="button">
+            SPECTRUM: {solar ? 'SOLAR' : 'MONO'}
+            <span className="swatch" />
+          </button>
+        </div>
 
         {/* viewfinder corners */}
         <span className="corner tl" />
