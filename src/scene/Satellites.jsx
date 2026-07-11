@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useInteraction } from './PlanetSystem.jsx'
 import { PALETTE } from './shaders.js'
+import { spaceAudio } from './audio.js'
 
 const SAT_COUNT = 10
 const CLUSTER = 90
@@ -157,6 +158,7 @@ export default function Satellites() {
         offset: new THREE.Vector3(),
         offsetVel: new THREE.Vector3(),
         trailInit: false,
+        pinged: false, // rising-edge guard so the ping fires once per touch
       }
     })
   }, [])
@@ -193,6 +195,16 @@ export default function Satellites() {
         const d = inter.ray.distanceToPoint(tmpWorld)
         target = THREE.MathUtils.clamp(1 - (d - 0.35) / 0.75, 0, 1)
       }
+      // Rising-edge ping: fire a futuristic chirp the moment the cursor
+      // engages this satellite. Hysteresis (0.5 up / 0.25 down) prevents it
+      // retriggering on jitter while the cursor lingers.
+      if (!s.pinged && target > 0.5) {
+        s.pinged = true
+        spaceAudio.satellitePing(s.id)
+      } else if (s.pinged && target < 0.25) {
+        s.pinged = false
+      }
+
       const k = 14
       const c = 5
       s.disruptVel += (k * (target - s.disrupt) - c * s.disruptVel) * dt

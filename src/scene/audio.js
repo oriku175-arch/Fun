@@ -185,6 +185,51 @@ class SpaceAudio {
     }
   }
 
+  // Futuristic ping when a satellite is disrupted — a short bright chirp
+  // with a fast pitch sweep and metallic ring. Called on the rising edge of
+  // a satellite's disruption, so it fires once per touch, not every frame.
+  satellitePing(seed = 0) {
+    if (!this.ctx || !this.enabled) return
+    const ctx = this.ctx
+    const now = ctx.currentTime
+
+    // Two detuned partials give it a metallic, sci-fi timbre.
+    const base = 720 + (seed % 5) * 90 // slight per-satellite variation
+    const filter = ctx.createBiquadFilter()
+    filter.type = 'bandpass'
+    filter.frequency.setValueAtTime(base * 2.2, now)
+    filter.frequency.exponentialRampToValueAtTime(base * 3.6, now + 0.14)
+    filter.Q.value = 4
+
+    const env = ctx.createGain()
+    env.gain.setValueAtTime(0.0001, now)
+    env.gain.exponentialRampToValueAtTime(0.09, now + 0.012)
+    env.gain.exponentialRampToValueAtTime(0.0001, now + 0.34)
+
+    const out = ctx.createGain()
+    out.gain.value = this.enabled ? 1 : 0
+    filter.connect(env).connect(out).connect(ctx.destination)
+
+    const p1 = ctx.createOscillator()
+    p1.type = 'square'
+    p1.frequency.setValueAtTime(base * 1.5, now)
+    p1.frequency.exponentialRampToValueAtTime(base * 3.0, now + 0.1)
+    const p2 = ctx.createOscillator()
+    p2.type = 'triangle'
+    p2.frequency.setValueAtTime(base * 2.02, now)
+    p2.frequency.exponentialRampToValueAtTime(base * 4.04, now + 0.1)
+    const mix = ctx.createGain()
+    mix.gain.value = 0.5
+    p1.connect(mix)
+    p2.connect(mix)
+    mix.connect(filter)
+
+    p1.start(now)
+    p2.start(now)
+    p1.stop(now + 0.36)
+    p2.stop(now + 0.36)
+  }
+
   // Per-frame modulation. strength: 0..~1 hover/disrupt spring. solar: 0..1.
   update(strength, solar) {
     if (!this.ctx || !this.nodes) return
