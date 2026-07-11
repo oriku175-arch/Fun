@@ -124,7 +124,7 @@ export default function HeroPage() {
         <div className={`intro ${phase === 'leaving' ? 'leaving' : ''}`}>
           <div className="intro-inner">
             <div className="intro-eyebrow">
-              <span className="tick" /> DEEP·FIELD·STATION
+              <span className="tick" aria-hidden="true" /> DEEP·FIELD·STATION
             </div>
             <h1 className="intro-title">KEPLER·0X</h1>
             <p className="intro-sub">
@@ -132,7 +132,7 @@ export default function HeroPage() {
               satellites. Reach in to disturb it.
             </p>
             <button className="intro-enter" onClick={enter} type="button">
-              <span className="play">▶</span> INITIATE SEQUENCE
+              <span className="play" aria-hidden="true">▶</span> INITIATE SEQUENCE
             </button>
             <div className="intro-note">SOUND ON · HEADPHONES RECOMMENDED</div>
           </div>
@@ -143,7 +143,7 @@ export default function HeroPage() {
       {phase !== 'intro' && (
         <div className="hud">
           <div className="win id-block">
-            <span className="dot" /> ORBITAL / DEEP·FIELD
+            <span className="dot" aria-hidden="true" /> ORBITAL / DEEP·FIELD
           </div>
 
           <nav className="nav">
@@ -158,13 +158,25 @@ export default function HeroPage() {
           <div className="foot-left">DRAG TO ORBIT · HOVER TO DISRUPT</div>
 
           <div className="controls-row">
-            <button className="win mode-btn" onClick={toggleAudio} type="button">
+            <button
+              className="win mode-btn"
+              onClick={toggleAudio}
+              type="button"
+              aria-pressed={audio}
+              aria-label={`Ambient audio ${audio ? 'on' : 'off'}`}
+            >
               AUDIO: {audio ? 'ON' : 'OFF'}
-              <span className={`swatch ${audio ? 'active' : ''}`} />
+              <span className={`swatch ${audio ? 'active' : ''}`} aria-hidden="true" />
             </button>
-            <button className="win mode-btn" onClick={toggleMode} type="button">
+            <button
+              className="win mode-btn"
+              onClick={toggleMode}
+              type="button"
+              aria-pressed={solar}
+              aria-label={`Color spectrum ${solar ? 'solar' : 'mono'}`}
+            >
               SPECTRUM: {solar ? 'SOLAR' : 'MONO'}
-              <span className="swatch" />
+              <span className="swatch" aria-hidden="true" />
             </button>
           </div>
 
