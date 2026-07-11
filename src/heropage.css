@@ -31,6 +31,109 @@
   animation: canvasFade 1.2s ease-out;
 }
 
+/* ---- intro / launch field ------------------------------------------------- */
+
+.intro {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  font-family: var(--mono);
+  color: var(--ink);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(5, 5, 5, 0.15) 0%,
+    rgba(5, 5, 5, 0.72) 72%
+  );
+  transition: opacity 0.7s ease;
+}
+
+.intro.leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-inner {
+  max-width: 520px;
+  animation: appear 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+.intro-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.34em;
+  color: var(--accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 26px;
+}
+
+.intro-eyebrow .tick {
+  width: 26px;
+  height: 1px;
+  background: var(--accent-soft);
+}
+
+.intro-title {
+  font-size: clamp(3rem, 10vw, 6rem);
+  font-weight: 200;
+  letter-spacing: 0.28em;
+  margin: 0 0 22px;
+  /* optical centering against the wide tracking */
+  text-indent: 0.28em;
+}
+
+.intro-sub {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.9;
+  letter-spacing: 0.14em;
+  color: var(--ink-dim);
+  margin: 0 auto 42px;
+  max-width: 420px;
+}
+
+.intro-enter {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.4em;
+  text-indent: 0.4em;
+  color: var(--ink);
+  background: rgba(5, 5, 5, 0.4);
+  border: 1px solid var(--accent-soft);
+  padding: 16px 38px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  transition: background 0.3s ease, box-shadow 0.3s ease, letter-spacing 0.3s ease;
+}
+
+.intro-enter:hover {
+  background: rgba(35, 72, 255, 0.14);
+  box-shadow: 0 0 44px rgba(35, 72, 255, 0.35);
+  letter-spacing: 0.46em;
+}
+
+.intro-enter .play {
+  color: var(--accent-soft);
+  font-size: 9px;
+  text-indent: 0;
+}
+
+.intro-note {
+  margin-top: 26px;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  color: var(--ink-faint);
+  animation: pulse 3.4s ease-in-out infinite;
+}
+
 .hud {
   position: absolute;
   inset: 0;
@@ -65,7 +168,7 @@
   align-items: center;
   gap: 8px;
   color: var(--ink);
-  animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: appear 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.5s both;
 }
 
 .id-block .dot {
@@ -85,7 +188,7 @@
   right: 24px;
   display: flex;
   gap: 22px;
-  animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  animation: appear 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.6s both;
 }
 
 .nav a {
@@ -111,7 +214,7 @@
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+  animation: appear 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.65s both;
 }
 
 .title {
@@ -132,7 +235,7 @@
   letter-spacing: 0.24em;
   color: var(--ink-faint);
   white-space: nowrap;
-  animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+  animation: appear 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.85s both;
 }
 
 /* ---- bottom-right controls ----------------------------------------------------- */
@@ -145,7 +248,7 @@
   flex-direction: column;
   gap: 12px;
   align-items: flex-end;
-  animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+  animation: appear 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.95s both;
 }
 
 .mode-btn {
@@ -185,7 +288,7 @@
   width: 16px;
   height: 16px;
   border: 1px solid rgba(235, 235, 235, 0.3);
-  animation: appear 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+  animation: appear 0.9s cubic-bezier(0.16, 1, 0.3, 1) 2.05s both;
 }
 
 .corner.tl { top: 64px; left: 24px; border-right: none; border-bottom: none; }

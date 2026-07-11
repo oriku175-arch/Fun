@@ -11,6 +11,10 @@ export const PLANET_RADIUS = 2.2
 // Toggled from the HUD (outside the canvas); read every frame inside it.
 export const modeStore = { solar: false }
 
+// Intro/arrival flow. `flying` starts the camera flight; `ready` gates all
+// pointer interaction until the flight lands, so the entry stays cinematic.
+export const introStore = { flying: false, ready: false }
+
 const InteractionContext = createContext(null)
 export const useInteraction = () => useContext(InteractionContext)
 
@@ -42,6 +46,7 @@ export default function PlanetSystem() {
     const el = gl.domElement
     const raycaster = new THREE.Raycaster()
     const onMove = (e) => {
+      if (!introStore.ready) return // no interaction until the flight lands
       const rect = el.getBoundingClientRect()
       inter.ndc.set(
         ((e.clientX - rect.left) / rect.width) * 2 - 1,
