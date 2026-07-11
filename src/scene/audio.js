@@ -154,45 +154,10 @@ class SpaceAudio {
     noise.connect(noiseFilter).connect(noiseGain).connect(masterFilter)
     noise.start(now)
 
-    // ---- interaction voice: swells with hover/disrupt strength ----------
-    const interOsc = ctx.createOscillator()
-    interOsc.type = 'triangle'
-    interOsc.frequency.value = 220
-    const interFilter = ctx.createBiquadFilter()
-    interFilter.type = 'bandpass'
-    interFilter.frequency.value = 600
-    interFilter.Q.value = 3
-    const interGain = ctx.createGain()
-    interGain.gain.value = 0
-    interOsc.connect(interFilter).connect(interGain).connect(masterFilter)
-    interOsc.start(now)
-
-    // fast tremolo on the interaction voice for a "charged" feel
-    const tremLfo = ctx.createOscillator()
-    tremLfo.frequency.value = 7
-    const tremGain = ctx.createGain()
-    tremGain.gain.value = 0.35
-    const tremBias = ctx.createConstantSource()
-    tremBias.offset.value = 0.65
-    tremBias.start(now)
-    tremLfo.connect(tremGain)
-    // (tremGain modulates interGain; wired in update via a summing node)
-    const interTrem = ctx.createGain()
-    interTrem.gain.value = 1
-    tremGain.connect(interTrem.gain)
-    tremBias.connect(interTrem.gain)
-    interGain.connect(interTrem).connect(masterFilter)
-    // note: interGain already connects to masterFilter above for base level;
-    // interTrem adds the tremolo-shaped component.
-    tremLfo.start(now)
-
     this.nodes = {
       master,
       droneFilter,
       voiceGain,
-      interOsc,
-      interFilter,
-      interGain,
       noiseGain,
       voiceA,
       voiceB,
@@ -220,21 +185,17 @@ class SpaceAudio {
     src.start(now)
   }
 
-  // Per-frame modulation. strength: 0..~1 hover/disrupt spring. solar: 0..1.
+  // Per-frame modulation. strength is intentionally unused — hovering the
+  // main globe no longer makes any sound; only the ambient bed responds to
+  // solar mode, and satellites ping on hover via satellitePing().
   update(strength, solar) {
     if (!this.ctx || !this.nodes) return
     const ctx = this.ctx
     const n = this.nodes
     const t = ctx.currentTime
-    const s = Math.max(0, Math.min(1.2, strength))
 
     // Master fade in/out.
     n.master.gain.setTargetAtTime(this.target * 0.9, t, 0.25)
-
-    // Interaction voice swells and brightens with disruption.
-    n.interGain.gain.setTargetAtTime(s * 0.12, t, 0.08)
-    n.interFilter.frequency.setTargetAtTime(500 + s * 2200, t, 0.08)
-    n.interOsc.frequency.setTargetAtTime(196 + s * 130, t, 0.12)
 
     // Solar mode: warmer, brighter bed and a touch more air.
     n.droneFilter.frequency.setTargetAtTime(420 + solar * 520, t, 0.4)
