@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resume</title>
+<link rel="icon" href="data:," />
+<link rel="stylesheet" href="fonts.css" />
+<style>
+/* =============================================================================
+   A4 resume template.
+
+   Two rules hold the whole thing together:
+
+   1. Everything is real text. No canvas, no images, no tables, no CSS columns —
+      so the printed PDF stays selectable and an ATS reads every word.
+   2. Everything is sized in pt against a fixed A4 page, so what renders on
+      screen and what comes out of the print dialog are the same document.
+   ========================================================================== */
+
+:root {
+  --accent:  #6C63FF;  /* name + section headings */
+  --link:    #4F46E5;
+  --ink:     #2a2a2a;  /* body copy */
+  --ink-strong: #111111;
+  --muted:   #9b9b9b;  /* dates */
+  --rule:    #d8d8d8;
+  --paper:   #ffffff;
+
+  --body:    8.5pt;   /* body copy — the dial that decides one page vs two */
+  --leading: 1.45;
+
+  --page-w:  210mm;
+  --page-h:  297mm;
+  --pad-x:   14mm;
+  --pad-y:   12mm;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #eceef2;
+  font-family: 'Figtree', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Page ---------------------------------------------------------------- */
+
+.page {
+  width: var(--page-w);
+  min-height: var(--page-h);
+  margin: 24px auto;
+  padding: var(--pad-y) var(--pad-x);
+  background: var(--paper);
+  box-shadow: 0 2px 24px rgba(20, 22, 40, 0.14);
+
+  display: grid;
+  grid-template-columns: 1fr 0.5fr;
+  column-gap: 8mm;
+  align-content: start;
+}
+
+.page > header { grid-column: 1 / -1; }
+.page > main   { grid-column: 1; }
+.page > aside  { grid-column: 2; }
+
+/* ---- Header -------------------------------------------------------------- */
+
+header.header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  column-gap: 8mm;
+}
+
+.identity { grid-column: 1; }
+
+.identity__name {
+  margin: 0;
+  font-size: 25pt;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--accent);
+}
+
+.identity__title {
+  margin: 4pt 0 0;
+  font-size: 11.5pt;
+  font-weight: 400;
+  color: #3a3a3a;
+}
+
+.identity__tagline {
+  margin: 3pt 0 0;
+  font-size: 8.5pt;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.links {
+  grid-column: 2;
+  margin: 3pt 0 0;
+  padding: 0;
+  list-style: none;
+  text-align: right;
+}
+
+.links li + li { margin-top: 3.5pt; }
+
+.links__link,
+.contact__value--link {
+  color: var(--link);
+  font-size: 8.5pt;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Contact row: Phone | Email | Location, matching the reference layout. */
+.contact {
+  grid-column: 1 / -1;
+  margin: 6mm 0 0;
+  font-size: 9pt;
+  color: var(--ink);
+}
+
+.contact__label { font-weight: 700; }
+.contact__divider {
+  margin: 0 10pt;
+  color: var(--rule);
+  font-weight: 400;
+}
+
+.summary {
+  grid-column: 1 / -1;
+  margin: 4.5mm 0 0;
+  font-size: var(--body);
+  line-height: var(--leading);
+  color: var(--ink);
+  text-align: left;
+}
+
+/* ---- Sections ------------------------------------------------------------ */
+
+main, aside { min-width: 0; }
+
+main > .section:first-child,
+aside > .section:first-child { margin-top: 6mm; }
+
+.section + .section { margin-top: 5mm; }
+
+.section__title {
+  margin: 0 0 3mm;
+  font-size: 13.5pt;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--accent);
+}
+
+/* Keep a job or a skill group whole rather than split across the page break. */
+.entry {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.entry + .entry { margin-top: 4mm; }
+
+.entry__heading {
+  margin: 0;
+  font-size: 10.5pt;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--ink-strong);
+}
+
+.entry__sep {
+  margin: 0 5pt;
+  font-weight: 400;
+  color: #b9b9b9;
+}
+
+.entry__role,
+.entry__client {
+  font-weight: 500;
+  color: #2f2f2f;
+}
+
+.entry__dates {
+  margin: 1.5pt 0 0;
+  font-size: 9pt;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.entry__body {
+  margin: 2pt 0 0;
+  font-size: var(--body);
+  line-height: var(--leading);
+  color: var(--ink);
+}
+
+/* ---- Bullets ------------------------------------------------------------- */
+
+/* Real <ul>/<li> with a real bullet glyph — ATS parsers handle these; glyph
+   icons or ::before pseudo-content would be dropped from the extracted text. */
+.bullets {
+  margin: 2mm 0 0;
+  padding-left: 4mm;
+  list-style: disc;
+}
+
+.bullets li {
+  margin-top: 1.6mm;
+  padding-left: 1mm;
+  font-size: var(--body);
+  line-height: var(--leading);
+  color: var(--ink);
+  orphans: 2;
+  widows: 2;
+}
+
+.bullets li::marker { color: #8a8a8a; font-size: 8pt; }
+
+strong {
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+
+.recognition__item {
+  margin: 0;
+  font-size: 9.5pt;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--ink-strong);
+}
+
+.recognition__item + .recognition__item { margin-top: 3mm; }
+
+/* ---- Download button (screen only) --------------------------------------- */
+
+.download {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+}
+
+.download:hover { background: #5a51f0; }
+
+.download__hint {
+  position: fixed;
+  right: 24px;
+  bottom: 66px;
+  max-width: 220px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #6b6f7d;
+  text-align: right;
+}
+
+/* ---- Print --------------------------------------------------------------- */
+
+/* In print the margin moves from .page's padding onto @page itself. That matters
+   the moment content runs past one page: padding is only applied to a block's
+   first fragment, so a padded .page would leave page 2 starting flush against
+   the paper edge. @page margins apply to every page. */
+@page {
+  size: A4;
+  margin: 12mm 14mm;
+}
+
+@media print {
+  html, body { background: #fff; }
+
+  .page {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    min-height: auto;
+  }
+
+  .download,
+  .download__hint { display: none !important; }
+
+  /* Keep the indigo accent and any backgrounds in the PDF. */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Print the URL of a link nowhere — the label already carries it. */
+  a { text-decoration: underline; }
+}
+</style>
+</head>
+<body>
+
+<div class="page" id="resume-page">
+  <header class="header" id="resume-header"></header>
+  <main id="resume-main"></main>
+  <aside id="resume-aside"></aside>
+</div>
+
+<p class="download__hint">Choose <strong>Save as PDF</strong> as the destination, and leave margins at&nbsp;Default.</p>
+<button class="download" id="download" type="button">Download PDF</button>
+
+<script src="resume-data.js"></script>
+<script src="render.js"></script>
+</body>
+</html>
