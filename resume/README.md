@@ -1,26 +1,58 @@
-# Resume template
+# Resume editor
 
-An A4 resume template that prints to a PDF which is both a pixel replica of what
-you see on screen **and** fully readable by ATS scanners.
+An A4 resume with a live design panel. Adjust the font, size, spacing and colors
+on screen, then download a PDF that is a pixel replica of what you see **and**
+fully readable by ATS scanners.
 
 ```
 resume/
-  index.html      the template — layout, typography, print rules
+  index.html      the page — layout, typography, print rules, panel styles
   resume-data.js  the content — this is the file you edit
   render.js       renders the data into the template
-  fonts.css       Figtree, embedded so it works offline and travels in the PDF
+  controls.js     the design panel
+  fonts.css       Figtree + Inter, embedded so they work offline and travel in the PDF
 ```
+
+Open `index.html` in Chrome — double-click it, no server needed.
+
+## The panel
+
+| Control | What it changes |
+| --- | --- |
+| Font | Figtree or Inter |
+| Text size | 9–12pt |
+| Line spacing | 1.2–1.8 |
+| Name size | 18–34pt |
+| Heading size | 10–18pt |
+| Accent color | Name, section headings and links together, with six presets |
+| Text color | Body copy |
+| Sidebar width | 24–46% of the page's text width |
+| Side / top margin | 8–22mm each |
+
+Your settings are remembered between visits. **Reset to defaults** puts everything
+back.
+
+**Text size stops at 9pt** on purpose — below that a printed resume gets hard to
+read, and shrinking type is the wrong way to win a page.
+
+### The page-fit badge
+
+Above the download button, a badge reads either *"Fits 1 page · 12mm to spare"* or
+*"2 pages · 227mm free on the last"*. It measures the real rendered height against
+an A4 page every time you move a control, so raising the text size shows its cost
+immediately instead of after a download.
+
+With the full wording, the defaults (Figtree, 9.5pt) come to two clean pages.
+Dropping to 9pt and narrowing the margins gets close to one; the badge tells you
+exactly where you stand.
 
 ## Downloading the PDF
 
-Open `index.html` in Chrome (double-click it — no server needed), then click
-**Download PDF** and choose **Save as PDF** as the destination.
+Click **Download PDF**, choose **Save as PDF** as the destination, leave margins
+on **Default** and keep **Background graphics** on. The page size and margins come
+from the stylesheet, so the output matches the screen every time.
 
-Leave margins on **Default** and keep **Background graphics** on. The stylesheet
-sets the A4 page size and the 12 × 14 mm margins itself, so the output is
-identical every time.
-
-To generate the same PDF without opening a browser:
+Headless, without opening a browser:
 
 ```bash
 npm install
@@ -41,20 +73,24 @@ phrases inside bullets:
 Sections render only if they have content, so deleting `tools` or `recognition`
 from the data removes the heading too.
 
-## Keeping it on one page
+## How the app and the PDF stay in agreement
 
-`--body` and `--leading` at the top of the stylesheet in `index.html` are the two
-dials that decide whether the content fits one page. They are currently `8.5pt`
-and `1.45`, which fits this resume with a little room to spare. Add a job and the
-content flows onto a second page cleanly — the print rules give page 2 the same
-margins and never split a job entry down the middle.
+Every control writes a single CSS custom property onto `:root`. Nothing
+re-renders, no layout logic is duplicated, and because those properties live on
+the document element they carry straight into the print output. Changing a
+setting cannot make the screen and the PDF disagree.
+
+The one exception is the page margin: `@page` can't read custom properties, so
+`controls.js` rewrites the `<style id="page-rule">` rule itself when the margin
+sliders move. Without that the margins would change on screen and leave the PDF
+untouched.
 
 ## Why it stays ATS-readable
 
 Most "download as PDF" resume tools screenshot the page (html2canvas and
 friends). The result looks right and contains no text at all, so a scanner reads
-an empty document. This one prints through the browser instead, so every glyph
-is real vector text.
+an empty document. This one prints through the browser instead, so every glyph is
+real vector text.
 
 The rest of it is about not tripping parsers:
 
@@ -64,9 +100,10 @@ The rest of it is about not tripping parsers:
 - **No tables, no text boxes, no CSS `column-count`** — the classic ways a
   two-column resume comes out of a parser interleaved and scrambled.
 - **Real `<ul>`/`<li>` bullets**, not glyph icons or `::before` content.
-- **Static font weights, not a variable font.** Chrome's print-to-PDF converts
+- **Static font weights, not variable fonts.** Chrome's print-to-PDF converts
   variable fonts into Type 3 fonts, which weaker parsers mishandle. The static
-  instances in `fonts.css` come out as ordinary embedded TrueType subsets.
+  instances in `fonts.css` come out as ordinary embedded TrueType subsets. Both
+  Figtree and Inter were checked. If you add a font, keep it static.
 
 Verify any change with:
 

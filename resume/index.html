@@ -6,34 +6,53 @@
 <title>Resume</title>
 <link rel="icon" href="data:," />
 <link rel="stylesheet" href="fonts.css" />
+<style id="page-rule">@page { size: A4; margin: 12mm 14mm; }</style>
 <style>
 /* =============================================================================
-   A4 resume template.
+   A4 resume template + editor.
 
-   Two rules hold the whole thing together:
+   Three rules hold the whole thing together:
 
    1. Everything is real text. No canvas, no images, no tables, no CSS columns —
       so the printed PDF stays selectable and an ATS reads every word.
    2. Everything is sized in pt against a fixed A4 page, so what renders on
       screen and what comes out of the print dialog are the same document.
+   3. Every adjustable value is a custom property on :root. controls.js only
+      ever writes those properties, which is why the panel can never make the
+      screen and the PDF disagree. The values below are the defaults, and they
+      are mirrored in DEFAULTS in controls.js.
    ========================================================================== */
 
 :root {
-  --accent:  #6C63FF;  /* name + section headings */
-  --link:    #4F46E5;
-  --ink:     #2a2a2a;  /* body copy */
+  /* -- Set by the control panel -------------------------------------------- */
+  --font:         'Figtree', 'Segoe UI', system-ui, sans-serif;
+  --body:         9.5pt;   /* body copy */
+  --leading:      1.45;
+  --name-size:    25pt;
+  --heading-size: 13.5pt;
+  --accent:       #6C63FF; /* name, section headings, links */
+  --ink:          #2a2a2a; /* body copy */
+  --side-w:       33%;     /* sidebar width as a share of the page's text width */
+  --pad-x:        14mm;
+  --pad-y:        12mm;
+
+  /* -- Fixed --------------------------------------------------------------- */
   --ink-strong: #111111;
-  --muted:   #9b9b9b;  /* dates */
-  --rule:    #d8d8d8;
-  --paper:   #ffffff;
+  --muted:      #9b9b9b;   /* dates */
+  --rule:       #d8d8d8;
+  --paper:      #ffffff;
 
-  --body:    8.5pt;   /* body copy — the dial that decides one page vs two */
-  --leading: 1.45;
+  --page-w: 210mm;
+  --page-h: 297mm;
 
-  --page-w:  210mm;
-  --page-h:  297mm;
-  --pad-x:   14mm;
-  --pad-y:   12mm;
+  /* Panel chrome — deliberately its own scale, so restyling the resume never
+     drags the editor's own appearance along with it. */
+  --ui-bg:     #ffffff;
+  --ui-line:   #e4e6ec;
+  --ui-text:   #2b2f3a;
+  --ui-muted:  #737a8c;
+  --ui-canvas: #eceef2;
+  --panel-w:   288px;
 }
 
 * { box-sizing: border-box; }
@@ -41,8 +60,8 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: #eceef2;
-  font-family: 'Figtree', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--ui-canvas);
+  font-family: var(--font);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -59,9 +78,15 @@ html, body {
   box-shadow: 0 2px 24px rgba(20, 22, 40, 0.14);
 
   display: grid;
-  grid-template-columns: 1fr 0.5fr;
+  /* The sidebar is a percentage track rather than a fraction of the main column:
+     `fr` units cannot be multiplied inside calc(), so a var-driven fr would make
+     the whole declaration invalid and silently collapse the layout. */
+  grid-template-columns: minmax(0, 1fr) var(--side-w);
   column-gap: 8mm;
   align-content: start;
+  /* Each column reports its own height rather than stretching to the row, which
+     is what lets the panel measure page fit honestly. */
+  align-items: start;
 }
 
 .page > header { grid-column: 1 / -1; }
@@ -81,7 +106,7 @@ header.header {
 
 .identity__name {
   margin: 0;
-  font-size: 25pt;
+  font-size: var(--name-size);
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.01em;
@@ -90,14 +115,14 @@ header.header {
 
 .identity__title {
   margin: 4pt 0 0;
-  font-size: 11.5pt;
+  font-size: calc(var(--body) + 2pt);
   font-weight: 400;
   color: #3a3a3a;
 }
 
 .identity__tagline {
   margin: 3pt 0 0;
-  font-size: 8.5pt;
+  font-size: calc(var(--body) - 1pt);
   font-weight: 400;
   color: var(--muted);
 }
@@ -114,8 +139,8 @@ header.header {
 
 .links__link,
 .contact__value--link {
-  color: var(--link);
-  font-size: 8.5pt;
+  color: var(--accent);
+  font-size: calc(var(--body) - 1pt);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -124,7 +149,7 @@ header.header {
 .contact {
   grid-column: 1 / -1;
   margin: 6mm 0 0;
-  font-size: 9pt;
+  font-size: var(--body);
   color: var(--ink);
 }
 
@@ -141,7 +166,6 @@ header.header {
   font-size: var(--body);
   line-height: var(--leading);
   color: var(--ink);
-  text-align: left;
 }
 
 /* ---- Sections ------------------------------------------------------------ */
@@ -155,7 +179,7 @@ aside > .section:first-child { margin-top: 6mm; }
 
 .section__title {
   margin: 0 0 3mm;
-  font-size: 13.5pt;
+  font-size: var(--heading-size);
   font-weight: 600;
   line-height: 1.2;
   color: var(--accent);
@@ -171,7 +195,7 @@ aside > .section:first-child { margin-top: 6mm; }
 
 .entry__heading {
   margin: 0;
-  font-size: 10.5pt;
+  font-size: calc(var(--body) + 1.5pt);
   font-weight: 700;
   line-height: 1.35;
   color: var(--ink-strong);
@@ -191,7 +215,7 @@ aside > .section:first-child { margin-top: 6mm; }
 
 .entry__dates {
   margin: 1.5pt 0 0;
-  font-size: 9pt;
+  font-size: calc(var(--body) - 0.5pt);
   font-weight: 400;
   color: var(--muted);
 }
@@ -223,7 +247,7 @@ aside > .section:first-child { margin-top: 6mm; }
   widows: 2;
 }
 
-.bullets li::marker { color: #8a8a8a; font-size: 8pt; }
+.bullets li::marker { color: #8a8a8a; font-size: calc(var(--body) - 1pt); }
 
 strong {
   font-weight: 600;
@@ -232,7 +256,7 @@ strong {
 
 .recognition__item {
   margin: 0;
-  font-size: 9.5pt;
+  font-size: calc(var(--body) + 0.5pt);
   font-weight: 700;
   line-height: 1.4;
   color: var(--ink-strong);
@@ -240,50 +264,241 @@ strong {
 
 .recognition__item + .recognition__item { margin-top: 3mm; }
 
-/* ---- Download button (screen only) --------------------------------------- */
+/* ---- Control panel (screen only) ----------------------------------------- */
 
-.download {
+.layout {
+  display: flex;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+.panel {
+  position: sticky;
+  top: 0;
+  flex: 0 0 var(--panel-w);
+  width: var(--panel-w);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 22px 20px 20px;
+  background: var(--ui-bg);
+  border-right: 1px solid var(--ui-line);
+  font-family: 'Figtree', 'Segoe UI', system-ui, sans-serif;
+  color: var(--ui-text);
+  font-size: 13px;
+}
+
+.canvas {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.panel__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.panel__body { padding: 14px 0 4px; }
+
+.field + .field { margin-top: 15px; }
+
+.field__label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.field__value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--ui-muted);
+}
+
+.field__input,
+.field__range,
+.field__color { width: 100%; }
+
+.field__input {
+  padding: 7px 9px;
+  border: 1px solid var(--ui-line);
+  border-radius: 7px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 13px;
+  color: inherit;
+}
+
+.field__range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--ui-line);
+  outline-offset: 4px;
+}
+
+.field__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+.field__range::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+.field__color {
+  height: 32px;
+  padding: 2px;
+  border: 1px solid var(--ui-line);
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.swatches {
+  display: flex;
+  gap: 6px;
+  margin-top: 7px;
+}
+
+.swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.panel__footer {
+  position: sticky;
+  bottom: 0;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--ui-line);
+  background: var(--ui-bg);
+}
+
+/* The readout that makes the size slider honest: it shows what a bigger font
+   costs before you spend a download finding out. */
+.fit {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: #edfaf1;
+  color: #14663a;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fit--over {
+  background: #fdf1e7;
+  color: #9a4a12;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 11px 14px;
+  border: 0;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn--ghost {
+  margin-top: 8px;
+  background: transparent;
+  border: 1px solid var(--ui-line);
+  color: var(--ui-muted);
+}
+
+.btn--ghost:hover { color: var(--ui-text); }
+
+.panel__hint {
+  margin: 9px 0 12px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--ui-muted);
+}
+
+.panel-toggle {
+  display: none;
   position: fixed;
-  right: 24px;
-  bottom: 24px;
-  padding: 12px 22px;
+  left: 16px;
+  bottom: 16px;
+  z-index: 20;
+  padding: 11px 18px;
   border: 0;
   border-radius: 999px;
   background: var(--accent);
   color: #fff;
-  font-family: inherit;
+  font-family: 'Figtree', system-ui, sans-serif;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+  box-shadow: 0 6px 20px rgba(20, 22, 40, 0.28);
 }
 
-.download:hover { background: #5a51f0; }
+/* Narrow screens: the panel slides away behind a toggle so the page keeps the
+   full width. */
+@media (max-width: 1180px) {
+  .panel {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 15;
+    transform: translateX(-100%);
+    transition: transform 0.18s ease;
+    box-shadow: 0 0 40px rgba(20, 22, 40, 0.18);
+  }
 
-.download__hint {
-  position: fixed;
-  right: 24px;
-  bottom: 66px;
-  max-width: 220px;
-  font-size: 11px;
-  line-height: 1.4;
-  color: #6b6f7d;
-  text-align: right;
+  .panel-open .panel { transform: none; }
+  .panel-toggle { display: block; }
 }
 
 /* ---- Print --------------------------------------------------------------- */
 
-/* In print the margin moves from .page's padding onto @page itself. That matters
+/* The @page rule lives in its own <style id="page-rule"> element, which
+   controls.js rewrites whenever the margin sliders move. It has to work that way
+   because @page cannot read custom properties — every other setting is a
+   variable, this one is a rewritten rule, and the result is the same: the panel
+   and the PDF never disagree.
+
+   In print the margin moves from .page's padding onto @page itself. That matters
    the moment content runs past one page: padding is only applied to a block's
    first fragment, so a padded .page would leave page 2 starting flush against
    the paper edge. @page margins apply to every page. */
-@page {
-  size: A4;
-  margin: 12mm 14mm;
-}
 
 @media print {
   html, body { background: #fff; }
+
+  .layout { display: block; }
+  .canvas { overflow: visible; }
 
   .page {
     width: auto;
@@ -293,32 +508,39 @@ strong {
     min-height: auto;
   }
 
-  .download,
-  .download__hint { display: none !important; }
+  .panel,
+  .panel-toggle { display: none !important; }
 
-  /* Keep the indigo accent and any backgrounds in the PDF. */
+  /* Keep the accent colour and any backgrounds in the PDF. */
   * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
 
-  /* Print the URL of a link nowhere — the label already carries it. */
   a { text-decoration: underline; }
 }
 </style>
 </head>
 <body>
 
-<div class="page" id="resume-page">
-  <header class="header" id="resume-header"></header>
-  <main id="resume-main"></main>
-  <aside id="resume-aside"></aside>
+<div class="layout">
+
+  <aside class="panel" id="controls"></aside>
+
+  <div class="canvas">
+    <div class="page" id="resume-page">
+      <header class="header" id="resume-header"></header>
+      <main id="resume-main"></main>
+      <aside id="resume-aside"></aside>
+    </div>
+  </div>
+
 </div>
 
-<p class="download__hint">Choose <strong>Save as PDF</strong> as the destination, and leave margins at&nbsp;Default.</p>
-<button class="download" id="download" type="button">Download PDF</button>
+<button class="panel-toggle" id="panel-toggle" type="button">Design</button>
 
 <script src="resume-data.js"></script>
 <script src="render.js"></script>
+<script src="controls.js"></script>
 </body>
 </html>
