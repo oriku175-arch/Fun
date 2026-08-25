@@ -1,0 +1,150 @@
+PRATIK PATIL
+Product Designer | UX Designer
+4+ Years · User Research · Interaction Design · B2B SaaS · Enterprise · Healthcare
+
+Phone: 992-135-4164 | Email: uiuxpratik@gmail.com | Location: Bangalore, India
+prateekdesigns.framer.website | LinkedIn: linkedin.com/in/uiuxpratik | Behance: behance.net/uiuxpratik
+
+SUMMARY
+Product/UX Designer with 4+ years of experience designing complex B2B, SaaS, and
+enterprise products across healthcare and IT domains. Grounded in user research and
+usability testing, translating ambiguous technical and business requirements into
+clear interaction models and prototypes. Partner directly with product managers,
+requirement engineers, and developers within agile teams, communicating design
+decisions and iterating from insight through to shipped, measurable outcomes.
+
+EXPERIENCE
+
+Global Software Resource | UX Designer | Client: Siemens Healthineers
+May 2024 — Present
+- Conducted user interviews and usability testing to identify workflow issues on an
+  enterprise troubleshooting platform, contributing to an estimated ~30% faster issue
+  resolution.
+- Designed user experiences for an enterprise troubleshooting platform used by medical
+  technicians at Siemens Healthineers, translating complex diagnostic workflows and
+  stakeholder requirements into clearer product experiences.
+- Contributed to an AI-assisted support platform handling 300–400 diagnostic tickets
+  per day, working across research, interaction design, and product delivery for the
+  Siemens Healthineers project.
+- Collaborated with product managers, requirement engineers, and developers to
+  translate requirements into UX solutions and support iterative product delivery.
+- Worked within agile teams to refine workflows, communicate design decisions, and
+  support feature delivery from design through development.
+
+BETSOL | UX Designer
+June 2022 — April 2024
+- Designed UX for an enterprise backup and monitoring product used by IT
+  administrators, working across complex product workflows and administrative
+  experiences.
+- Redesigned onboarding and core workflows to reduce setup complexity and improve
+  usability for enterprise users, based on observed user friction.
+- Contributed to improvements in key product flows that supported ~40%+ higher
+  trial-to-paid conversion.
+- Built and maintained reusable design components, improving consistency across
+  product experiences and supporting efficient design-to-development handoff.
+- Collaborated within agile delivery teams, working with product and engineering
+  stakeholders through design iteration, feedback, and implementation.
+
+HIE-HQ | UX Trainee
+January 2022 — May 2022
+- Supported research, wireframing, and prototyping across multiple client projects.
+- Assisted in creating internal design systems and shared design tools used by
+  designers.
+- Participated in design reviews and feedback sessions to improve design quality and
+  communication.
+- Developed foundational experience in UX research, interaction design, collaboration,
+  and design execution.
+
+EDUCATION
+Mumbai University — Bachelor of Engineering, Computer Engineering — 2022
+
+SKILLS
+Design & Research: User Research, User Interviews, Usability Testing, Interaction
+Design, Problem Discovery, Information Architecture, User Flows, Journey Mapping,
+Wireframing, Prototyping
+
+Collaboration & Communication: Design Storytelling, Stakeholder Collaboration,
+Cross-functional Collaboration, Design Critique, Feedback & Iteration, Agile/Scrum
+
+Design Systems & Quality: Design Systems, Component Design, Accessibility,
+WCAG 2.1 AA, Visual Design, Responsive Design
+
+Tools: Figma, FigJam, Miro, Adobe Illustrator, Photoshop, Claude, Lovable
+
+RECOGNITION
+Best Performing Employee — Siemens Healthineers
+Top 10% UX Designer — Upwork
+
+
+===============================================================================
+ASSESSMENT — Motorola Solutions, Senior UX Designer (Experience Design & Research)
+===============================================================================
+
+WHAT CHANGED FROM THE BASELINE RESUME
+1. Summary rewritten around research-to-decision framing ("grounded in user research
+   and usability testing, translating requirements into interaction models"), matching
+   the JD's emphasis on research-informed design rather than visual execution alone.
+2. Led with the research/usability-testing bullet at Siemens instead of the general
+   platform-description bullet, since discovery and research are the JD's first
+   requirement, not an afterthought.
+3. Reordered BETSOL to put the usability-driven onboarding redesign ahead of the
+   conversion metric, so the causal story (observed friction → redesign → result) reads
+   before the number.
+4. Skills regrouped into "Design & Research" and "Collaboration & Communication" —
+   the JD's own two pillars — replacing the previous "Product & UX Design" /
+   "Product & Collaboration" split.
+5. Tagline changed to foreground "User Research · Interaction Design" ahead of the
+   domain list, since those are the two things this JD screens for first.
+6. Nothing added that wasn't already true in the baseline: no workshops, no design
+   sprints, no discovery-session leadership, no direct stakeholder presentations were
+   claimed, because none of those were confirmed as real.
+
+MATCH AGAINST THE JD
+Strong:
+- User research, usability testing, interaction design, prototyping — all genuinely
+  evidenced with real bullets and outcomes (~30% faster resolution, ~40%+ conversion).
+- Cross-discipline collaboration with product managers, requirement engineers, and
+  developers — directly matches "Partner closely with Product, Engineering... to
+  ensure solutions are feasible."
+- Enterprise, complex-workflow, technical-domain product experience (healthcare, IT
+  admin tooling) — the JD's "public safety applications" domain is adjacent, not
+  identical, but the pattern (technical users, complex workflows, high-stakes context)
+  transfers.
+
+Gaps — stated plainly, not papered over:
+- YEARS OF EXPERIENCE: the JD's basic qualification is 6+ years in product design,
+  service design, or a strategic design role. This resume shows 4+ years. This is the
+  single largest gap and cannot be closed by wording — it's a stated minimum, not a
+  preference.
+- WORKSHOP / DESIGN SPRINT FACILITATION: the JD asks for "demonstrated mastery of
+  planning and facilitating workshops, design sprints, and customer co-creation
+  sessions." Nothing in the baseline resume supports having personally planned or run
+  one. Not claimed here.
+- LEADING DISCOVERY: the JD wants someone who "plans and leads customer discovery
+  sessions to uncover unmet needs, align stakeholders." The resume shows conducting
+  interviews and usability tests, which is real and relevant, but "leading" discovery
+  (owning the plan, aligning stakeholders around findings) isn't separately evidenced
+  and wasn't asserted.
+- AI-ASSISTED PROTOTYPING: the JD wants "rapidly translate abstract concepts into
+  tangible prototypes leveraging AI tools." Claude and Lovable are listed as tools, but
+  the resume doesn't (and shouldn't, without confirmation) claim they were used
+  specifically for rapid AI-assisted prototyping workflows.
+- STRATEGIC / SERVICE DESIGN SCOPE: the JD's basic qualification allows "product
+  design, service design, or a strategic design role" — this resume's experience reads
+  as product/UX execution within defined enterprise products, not strategic or service
+  design at a program level.
+
+MATCH SCORE: 52/100
+This reflects genuinely strong overlap on the craft (research, interaction design,
+cross-functional collaboration, measurable outcomes) pulled down hard by one
+non-negotiable basic qualification (6+ years) and two explicitly named "what you'll do"
+items (workshop/sprint facilitation, leading discovery) that the resume can't honestly
+claim.
+
+RECOMMENDATION: 🟡 APPLY — Some Gaps
+The craft match is real and the resume now presents it honestly and well. But the
+years-of-experience gap is stated as a basic qualification, not a preference, which
+usually means an ATS or recruiter screen filters on it directly — worth knowing before
+you spend an application on it. If you apply, a short note addressing the experience
+gap directly (scope of ownership, complexity of the Siemens/BETSOL work) in a cover
+letter is more likely to help than resume wording alone.
