@@ -376,6 +376,23 @@ strong {
 
 .panel__body { padding: 14px 0 4px; }
 
+/* Resume switcher — sits above the design controls and is visually distinct
+   from them, since it changes content rather than styling. */
+.switcher { padding-top: 4px; }
+
+.switcher__select {
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.switcher .panel__hint { margin: 8px 0 0; }
+
+.switcher + .panel__body {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ui-line);
+}
+
 .field + .field { margin-top: 15px; }
 
 .field__label {
@@ -723,7 +740,12 @@ window.RESUME = {
 };
 </script>
 <script>/* =============================================================================
-   Renders window.RESUME (from resume-data.js) into the template markup.
+   Renders resume data into the template markup.
+
+   Exposes window.renderResume(data) rather than running once and forgetting,
+   so the resume switcher in controls.js can re-render with a different
+   application's data without a page reload — the design settings (font,
+   size, colors, all driven by CSS custom properties) simply carry over.
 
    Deliberately a classic script, not an ES module, so index.html can be opened
    straight off disk with a double-click (file:// blocks module imports).
@@ -731,8 +753,6 @@ window.RESUME = {
 
 (function () {
   'use strict';
-
-  var data = window.RESUME;
 
   function el(tag, className, text) {
     var node = document.createElement(tag);
@@ -756,138 +776,149 @@ window.RESUME = {
     return node;
   }
 
-  var columns = {
-    main: document.getElementById('resume-main'),
-    aside: document.getElementById('resume-aside')
-  };
+  function renderResume(data) {
+    var header = document.getElementById('resume-header');
+    var main = document.getElementById('resume-main');
+    var aside = document.getElementById('resume-aside');
 
-  /* A section: indigo heading plus its body. `column` picks which of the two
-     grid tracks it is appended to. The DOM order that results — header,
-     summary, experience, education, skills, tools, recognition — is also the
-     order text is extracted from the printed PDF, which is exactly the order an
-     ATS wants to read. */
-  function section(title, column) {
-    var wrap = el('section', 'section');
-    wrap.appendChild(el('h2', 'section__title', title));
-    columns[column].appendChild(wrap);
-    return wrap;
-  }
+    // Re-renders start from empty containers so switching resumes never
+    // appends a second copy underneath the first.
+    header.innerHTML = '';
+    main.innerHTML = '';
+    aside.innerHTML = '';
 
-  // ---- Header ---------------------------------------------------------------
+    var columns = { main: main, aside: aside };
 
-  var header = document.getElementById('resume-header');
-  var identity = el('div', 'identity');
-  identity.appendChild(el('h1', 'identity__name', data.name));
-  identity.appendChild(el('p', 'identity__title', data.title));
-  if (data.tagline) identity.appendChild(el('p', 'identity__tagline', data.tagline));
-
-  var linkList = el('ul', 'links');
-  (data.links || []).forEach(function (link) {
-    var li = el('li');
-    var a = el('a', 'links__link', link.label);
-    a.href = link.href;
-    li.appendChild(a);
-    linkList.appendChild(li);
-  });
-
-  header.appendChild(identity);
-  header.appendChild(linkList);
-
-  var contactRow = el('p', 'contact');
-  (data.contact || []).forEach(function (item, index) {
-    if (index > 0) contactRow.appendChild(el('span', 'contact__divider', '|'));
-    var group = el('span', 'contact__item');
-    if (item.label) group.appendChild(el('span', 'contact__label', item.label + ' : '));
-    if (item.href) {
-      var a = el('a', 'contact__value contact__value--link', item.value);
-      a.href = item.href;
-      group.appendChild(a);
-    } else {
-      group.appendChild(el('span', 'contact__value', item.value));
+    /* A section: indigo heading plus its body. `column` picks which of the two
+       grid tracks it is appended to. The DOM order that results — header,
+       summary, experience, education, skills, tools, recognition — is also
+       the order text is extracted from the printed PDF, which is exactly the
+       order an ATS wants to read. */
+    function section(title, column) {
+      var wrap = el('section', 'section');
+      wrap.appendChild(el('h2', 'section__title', title));
+      columns[column].appendChild(wrap);
+      return wrap;
     }
-    contactRow.appendChild(group);
-  });
-  header.appendChild(contactRow);
 
-  if (data.summary) {
-    header.appendChild(setRich(el('p', 'summary'), data.summary));
-  }
+    // ---- Header -----------------------------------------------------------
 
-  // ---- Body -----------------------------------------------------------------
+    var identity = el('div', 'identity');
+    identity.appendChild(el('h1', 'identity__name', data.name));
+    identity.appendChild(el('p', 'identity__title', data.title));
+    if (data.tagline) identity.appendChild(el('p', 'identity__tagline', data.tagline));
 
-  // Experience (left column)
-  if ((data.experience || []).length) {
-    var experience = section('Experience', 'main');
-    data.experience.forEach(function (job) {
-      var entry = el('article', 'entry');
+    var linkList = el('ul', 'links');
+    (data.links || []).forEach(function (link) {
+      var li = el('li');
+      var a = el('a', 'links__link', link.label);
+      a.href = link.href;
+      li.appendChild(a);
+      linkList.appendChild(li);
+    });
 
-      var heading = el('h3', 'entry__heading');
-      heading.appendChild(el('span', 'entry__company', job.company));
-      if (job.role) {
-        heading.appendChild(el('span', 'entry__sep', '|'));
-        heading.appendChild(el('span', 'entry__role', job.role));
+    header.appendChild(identity);
+    header.appendChild(linkList);
+
+    var contactRow = el('p', 'contact');
+    (data.contact || []).forEach(function (item, index) {
+      if (index > 0) contactRow.appendChild(el('span', 'contact__divider', '|'));
+      var group = el('span', 'contact__item');
+      if (item.label) group.appendChild(el('span', 'contact__label', item.label + ' : '));
+      if (item.href) {
+        var a = el('a', 'contact__value contact__value--link', item.value);
+        a.href = item.href;
+        group.appendChild(a);
+      } else {
+        group.appendChild(el('span', 'contact__value', item.value));
       }
-      if (job.client) {
-        heading.appendChild(el('span', 'entry__sep', '|'));
-        heading.appendChild(el('span', 'entry__client', job.client));
-      }
-      entry.appendChild(heading);
+      contactRow.appendChild(group);
+    });
+    header.appendChild(contactRow);
 
-      if (job.dates) entry.appendChild(el('p', 'entry__dates', job.dates));
+    if (data.summary) {
+      header.appendChild(setRich(el('p', 'summary'), data.summary));
+    }
 
-      var list = el('ul', 'bullets');
-      (job.bullets || []).forEach(function (bullet) {
-        list.appendChild(setRich(el('li'), bullet));
+    // ---- Body ---------------------------------------------------------------
+
+    // Experience (left column)
+    if ((data.experience || []).length) {
+      var experience = section('Experience', 'main');
+      data.experience.forEach(function (job) {
+        var entry = el('article', 'entry');
+
+        var heading = el('h3', 'entry__heading');
+        heading.appendChild(el('span', 'entry__company', job.company));
+        if (job.role) {
+          heading.appendChild(el('span', 'entry__sep', '|'));
+          heading.appendChild(el('span', 'entry__role', job.role));
+        }
+        if (job.client) {
+          heading.appendChild(el('span', 'entry__sep', '|'));
+          heading.appendChild(el('span', 'entry__client', job.client));
+        }
+        entry.appendChild(heading);
+
+        if (job.dates) entry.appendChild(el('p', 'entry__dates', job.dates));
+
+        var list = el('ul', 'bullets');
+        (job.bullets || []).forEach(function (bullet) {
+          list.appendChild(setRich(el('li'), bullet));
+        });
+        entry.appendChild(list);
+
+        experience.appendChild(entry);
       });
-      entry.appendChild(list);
+    }
 
-      experience.appendChild(entry);
-    });
+    // Education (right column)
+    if ((data.education || []).length) {
+      var education = section('Education', 'aside');
+      data.education.forEach(function (item) {
+        var entry = el('div', 'entry');
+        entry.appendChild(el('h3', 'entry__heading', item.school));
+        if (item.dates) entry.appendChild(el('p', 'entry__dates', item.dates));
+        if (item.degree) entry.appendChild(el('p', 'entry__body', item.degree));
+        education.appendChild(entry);
+      });
+    }
+
+    // Skills (right column)
+    if ((data.skills || []).length) {
+      var skills = section('Skills', 'aside');
+      data.skills.forEach(function (group) {
+        var entry = el('div', 'entry');
+        entry.appendChild(el('h3', 'entry__heading', group.group));
+        entry.appendChild(el('p', 'entry__body', group.items));
+        skills.appendChild(entry);
+      });
+    }
+
+    // Tools (right column)
+    if (data.tools) {
+      var tools = section('Tools', 'aside');
+      tools.appendChild(el('p', 'entry__body', data.tools));
+    }
+
+    // Recognition (right column)
+    if ((data.recognition || []).length) {
+      var recognition = section('Recognition', 'aside');
+      data.recognition.forEach(function (item) {
+        recognition.appendChild(el('p', 'recognition__item', item));
+      });
+    }
+
+    /* The browser's own print-to-PDF is what keeps the download an exact
+       replica: it writes real vector text, so the file both looks identical
+       and stays readable by ATS scanners. The page title becomes the
+       suggested filename. */
+    if (data.fileName) document.title = data.fileName;
   }
 
-  // Education (right column)
-  if ((data.education || []).length) {
-    var education = section('Education', 'aside');
-    data.education.forEach(function (item) {
-      var entry = el('div', 'entry');
-      entry.appendChild(el('h3', 'entry__heading', item.school));
-      if (item.dates) entry.appendChild(el('p', 'entry__dates', item.dates));
-      if (item.degree) entry.appendChild(el('p', 'entry__body', item.degree));
-      education.appendChild(entry);
-    });
-  }
+  window.renderResume = renderResume;
 
-  // Skills (right column)
-  if ((data.skills || []).length) {
-    var skills = section('Skills', 'aside');
-    data.skills.forEach(function (group) {
-      var entry = el('div', 'entry');
-      entry.appendChild(el('h3', 'entry__heading', group.group));
-      entry.appendChild(el('p', 'entry__body', group.items));
-      skills.appendChild(entry);
-    });
-  }
-
-  // Tools (right column)
-  if (data.tools) {
-    var tools = section('Tools', 'aside');
-    tools.appendChild(el('p', 'entry__body', data.tools));
-  }
-
-  // Recognition (right column)
-  if ((data.recognition || []).length) {
-    var recognition = section('Recognition', 'aside');
-    data.recognition.forEach(function (item) {
-      recognition.appendChild(el('p', 'recognition__item', item));
-    });
-  }
-
-  // ---- Download -------------------------------------------------------------
-
-  /* The browser's own print-to-PDF is what keeps the download an exact replica:
-     it writes real vector text, so the file both looks identical and stays
-     readable by ATS scanners. The page title becomes the suggested filename. */
-  if (data.fileName) document.title = data.fileName;
+  renderResume(window.RESUME);
 
   var button = document.getElementById('download');
   if (button) {
@@ -896,6 +927,224 @@ window.RESUME = {
     });
   }
 })();
+</script>
+<script>/* GENERATED by scripts/build-manifest.mjs — do not hand-edit.
+   Regenerate after adding, renaming, or editing a resume:
+     node scripts/build-manifest.mjs
+*/
+
+window.RESUME_LIBRARY = [
+  {
+    "slug": "master",
+    "label": "Master (all experience)",
+    "data": {
+      "fileName": "Pratik_Patil_Product_Designer_Resume",
+      "name": "Pratik Patil",
+      "title": "Product Designer | UX Designer",
+      "tagline": "4+ Years · B2B SaaS · Enterprise · Healthcare · Complex Workflows",
+      "links": [
+        {
+          "label": "prateekdesigns.framer.website",
+          "href": "https://prateekdesigns.framer.website"
+        },
+        {
+          "label": "LinkedIn",
+          "href": "https://www.linkedin.com/in/uiuxpratik"
+        },
+        {
+          "label": "Behance",
+          "href": "https://www.behance.net/uiuxpratik"
+        }
+      ],
+      "contact": [
+        {
+          "label": "Phone",
+          "value": "992-135-4164",
+          "href": "tel:+919921354164"
+        },
+        {
+          "label": "Email",
+          "value": "uiuxpratik@gmail.com",
+          "href": "mailto:uiuxpratik@gmail.com"
+        },
+        {
+          "label": "Location",
+          "value": "Bangalore, India"
+        }
+      ],
+      "summary": "Product Designer with 4+ years of experience designing complex B2B, SaaS, and enterprise products across healthcare and IT domains. Experienced in user research, problem discovery, workflow design, interaction design, prototyping, usability testing, and design systems. Worked closely with product managers and engineers to translate complex user and business requirements into clearer, scalable product experiences, with experience contributing to measurable improvements in issue resolution and product conversion.",
+      "experience": [
+        {
+          "company": "Global Software Resource",
+          "role": "UX Designer",
+          "client": "Client: Siemens Healthineers",
+          "dates": "May 2024 — Present",
+          "bullets": [
+            "Designed user experiences for an **enterprise troubleshooting platform used by medical technicians at Siemens Healthineers**, translating complex diagnostic workflows and stakeholder requirements into clearer product experiences.",
+            "Contributed to an **AI-assisted support platform handling 300–400 diagnostic tickets per day**, working across research, interaction design, and product delivery for the Siemens Healthineers project.",
+            "Conducted **user interviews and usability testing** to identify workflow issues and improve clarity, contributing to an estimated **~30% faster issue resolution**.",
+            "Collaborated with **product managers, requirement engineers, and developers** to translate requirements into UX solutions and support iterative product delivery.",
+            "Worked within agile teams to refine workflows, communicate design decisions, and support feature delivery from design through development."
+          ]
+        },
+        {
+          "company": "BETSOL",
+          "role": "UX Designer",
+          "dates": "June 2022 — April 2024",
+          "bullets": [
+            "Designed UX for an **enterprise backup and monitoring product used by IT administrators**, working across complex product workflows and administrative experiences.",
+            "Contributed to improvements in key product flows that supported **~40%+ higher trial-to-paid conversion**.",
+            "Redesigned onboarding and core workflows to **reduce setup complexity and improve usability** for enterprise users.",
+            "Built and maintained **reusable design components**, improving consistency across product experiences and supporting efficient design-to-development handoff.",
+            "Collaborated within agile delivery teams, working with product and engineering stakeholders through design iteration, feedback, and implementation."
+          ]
+        },
+        {
+          "company": "HIE-HQ",
+          "role": "UX Trainee",
+          "dates": "January 2022 — May 2022",
+          "bullets": [
+            "Supported research, wireframing, and prototyping across multiple client projects.",
+            "Assisted in creating internal **design systems and shared design tools** used by designers.",
+            "Participated in design reviews and feedback sessions to improve design quality and communication.",
+            "Developed foundational experience in UX research, interaction design, collaboration, and design execution."
+          ]
+        }
+      ],
+      "education": [
+        {
+          "school": "Mumbai University",
+          "dates": "2022",
+          "degree": "Bachelor of Engineering — Computer Engineering"
+        }
+      ],
+      "skills": [
+        {
+          "group": "Product & UX Design",
+          "items": "Product Design, User Research, Problem Discovery, Interaction Design, Information Architecture, User Flows, Journey Mapping, Usability Testing, Wireframing, Prototyping"
+        },
+        {
+          "group": "Product & Collaboration",
+          "items": "Problem Framing, Design Critique, Stakeholder Collaboration, Cross-functional Collaboration, Design Storytelling, Feedback & Iteration, Agile/Scrum, Design-to-Development Handoff"
+        },
+        {
+          "group": "Design Systems & Quality",
+          "items": "Design Systems, Component Design, Accessibility, WCAG 2.1 AA, Visual Design, Interaction Design, Responsive Design"
+        }
+      ],
+      "tools": "Figma, FigJam, Miro, Adobe Illustrator, Photoshop, Claude, Lovable",
+      "recognition": [
+        "Best Performing Employee — Siemens Healthineers",
+        "Top 10% UX Designer — Upwork"
+      ]
+    }
+  },
+  {
+    "slug": "motorola-solutions",
+    "label": "Motorola Solutions — Senior UX Designer",
+    "data": {
+      "fileName": "Pratik_Patil_UX_Designer_Resume_Motorola",
+      "name": "Pratik Patil",
+      "title": "Product Designer | UX Designer",
+      "tagline": "4+ Years · User Research · Interaction Design · B2B SaaS · Enterprise · Healthcare",
+      "links": [
+        {
+          "label": "prateekdesigns.framer.website",
+          "href": "https://prateekdesigns.framer.website"
+        },
+        {
+          "label": "LinkedIn",
+          "href": "https://www.linkedin.com/in/uiuxpratik"
+        },
+        {
+          "label": "Behance",
+          "href": "https://www.behance.net/uiuxpratik"
+        }
+      ],
+      "contact": [
+        {
+          "label": "Phone",
+          "value": "992-135-4164",
+          "href": "tel:+919921354164"
+        },
+        {
+          "label": "Email",
+          "value": "uiuxpratik@gmail.com",
+          "href": "mailto:uiuxpratik@gmail.com"
+        },
+        {
+          "label": "Location",
+          "value": "Bangalore, India"
+        }
+      ],
+      "summary": "Product/UX Designer with 4+ years of experience designing complex B2B, SaaS, and enterprise products across healthcare and IT domains. Grounded in user research and usability testing, translating ambiguous technical and business requirements into clear interaction models and prototypes. Partner directly with product managers, requirement engineers, and developers within agile teams, communicating design decisions and iterating from insight through to shipped, measurable outcomes.",
+      "experience": [
+        {
+          "company": "Global Software Resource",
+          "role": "UX Designer",
+          "client": "Client: Siemens Healthineers",
+          "dates": "May 2024 — Present",
+          "bullets": [
+            "Conducted **user interviews and usability testing** to identify workflow issues on an enterprise troubleshooting platform, contributing to an estimated **~30% faster issue resolution**.",
+            "Designed user experiences for an **enterprise troubleshooting platform used by medical technicians at Siemens Healthineers**, translating complex diagnostic workflows and stakeholder requirements into clearer product experiences.",
+            "Contributed to an **AI-assisted support platform handling 300–400 diagnostic tickets per day**, working across research, interaction design, and product delivery for the Siemens Healthineers project.",
+            "Collaborated with **product managers, requirement engineers, and developers** to translate requirements into UX solutions and support iterative product delivery.",
+            "Worked within agile teams to refine workflows, communicate design decisions, and support feature delivery from design through development."
+          ]
+        },
+        {
+          "company": "BETSOL",
+          "role": "UX Designer",
+          "dates": "June 2022 — April 2024",
+          "bullets": [
+            "Designed UX for an **enterprise backup and monitoring product used by IT administrators**, working across complex product workflows and administrative experiences.",
+            "Redesigned onboarding and core workflows to **reduce setup complexity and improve usability** for enterprise users, based on observed user friction.",
+            "Contributed to improvements in key product flows that supported **~40%+ higher trial-to-paid conversion**.",
+            "Built and maintained **reusable design components**, improving consistency across product experiences and supporting efficient design-to-development handoff.",
+            "Collaborated within agile delivery teams, working with product and engineering stakeholders through design iteration, feedback, and implementation."
+          ]
+        },
+        {
+          "company": "HIE-HQ",
+          "role": "UX Trainee",
+          "dates": "January 2022 — May 2022",
+          "bullets": [
+            "Supported research, wireframing, and prototyping across multiple client projects.",
+            "Assisted in creating internal **design systems and shared design tools** used by designers.",
+            "Participated in design reviews and feedback sessions to improve design quality and communication.",
+            "Developed foundational experience in UX research, interaction design, collaboration, and design execution."
+          ]
+        }
+      ],
+      "education": [
+        {
+          "school": "Mumbai University",
+          "dates": "2022",
+          "degree": "Bachelor of Engineering — Computer Engineering"
+        }
+      ],
+      "skills": [
+        {
+          "group": "Design & Research",
+          "items": "User Research, User Interviews, Usability Testing, Interaction Design, Problem Discovery, Information Architecture, User Flows, Journey Mapping, Wireframing, Prototyping"
+        },
+        {
+          "group": "Collaboration & Communication",
+          "items": "Design Storytelling, Stakeholder Collaboration, Cross-functional Collaboration, Design Critique, Feedback & Iteration, Agile/Scrum"
+        },
+        {
+          "group": "Design Systems & Quality",
+          "items": "Design Systems, Component Design, Accessibility, WCAG 2.1 AA, Visual Design, Responsive Design"
+        }
+      ],
+      "tools": "Figma, FigJam, Miro, Adobe Illustrator, Photoshop, Claude, Lovable",
+      "recognition": [
+        "Best Performing Employee — Siemens Healthineers",
+        "Top 10% UX Designer — Upwork"
+      ]
+    }
+  }
+];
 </script>
 <script>/* =============================================================================
    The control panel.
@@ -913,6 +1162,7 @@ window.RESUME = {
   'use strict';
 
   var STORE_KEY = 'resume-settings-v1';
+  var RESUME_STORE_KEY = 'resume-active-v1';
 
   /* Single source of truth. The stylesheet repeats these as fallbacks, the panel
      builds itself from them, and Reset restores them. */
@@ -1113,6 +1363,60 @@ window.RESUME = {
 
   var panel = document.getElementById('controls');
   if (!panel) return;
+
+  // ---- Resume switcher ------------------------------------------------------
+
+  /* RESUME_LIBRARY is generated by scripts/build-manifest.mjs from the master
+     resume plus every file in resume/applications/. Each entry's data object
+     is embedded directly (not fetched), so switching works the same way
+     whether this page is opened from resume/index.html or from the bundled,
+     self-contained artifact — there's no second file to load in either case. */
+  var library = window.RESUME_LIBRARY || [];
+
+  if (library.length > 1) {
+    var switcher = el('div', 'switcher');
+    switcher.appendChild(el('h2', 'panel__title', 'Applying to'));
+
+    var select = el('select', 'field__input switcher__select');
+    library.forEach(function (entry) {
+      var opt = el('option', null, entry.label);
+      opt.value = entry.slug;
+      select.appendChild(opt);
+    });
+
+    var activeSlug = 'master';
+    try {
+      var saved = localStorage.getItem(RESUME_STORE_KEY);
+      if (saved && library.some(function (e) { return e.slug === saved; })) {
+        activeSlug = saved;
+      }
+    } catch (err) {
+      /* Fall back to the master resume. */
+    }
+
+    select.value = activeSlug;
+    window.renderResume(
+      (library.filter(function (e) { return e.slug === activeSlug; })[0] || library[0]).data
+    );
+
+    select.addEventListener('change', function () {
+      var entry = library.filter(function (e) { return e.slug === select.value; })[0];
+      if (!entry) return;
+      window.renderResume(entry.data);
+      try {
+        localStorage.setItem(RESUME_STORE_KEY, entry.slug);
+      } catch (err) {
+        /* Private browsing and file:// quotas — not worth breaking over. */
+      }
+      measureFit();
+    });
+
+    switcher.appendChild(select);
+    switcher.appendChild(
+      el('p', 'panel__hint', 'Design settings below apply to whichever resume is selected here.')
+    );
+    panel.appendChild(switcher);
+  }
 
   var body = el('div', 'panel__body');
   var valueLabels = {};

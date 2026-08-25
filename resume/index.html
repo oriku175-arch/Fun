@@ -302,6 +302,23 @@ strong {
 
 .panel__body { padding: 14px 0 4px; }
 
+/* Resume switcher — sits above the design controls and is visually distinct
+   from them, since it changes content rather than styling. */
+.switcher { padding-top: 4px; }
+
+.switcher__select {
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.switcher .panel__hint { margin: 8px 0 0; }
+
+.switcher + .panel__body {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ui-line);
+}
+
 .field + .field { margin-top: 15px; }
 
 .field__label {
@@ -541,6 +558,7 @@ strong {
 
 <script src="resume-data.js"></script>
 <script src="render.js"></script>
+<script src="applications/manifest.js"></script>
 <script src="controls.js"></script>
 </body>
 </html>

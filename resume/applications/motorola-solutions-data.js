@@ -7,6 +7,8 @@
    candidate has 4+. See resume/applications/motorola-solutions.txt for the full
    assessment. */
 
+// LABEL: Motorola Solutions — Senior UX Designer
+
 window.RESUME = {
   fileName: 'Pratik_Patil_UX_Designer_Resume_Motorola',
 

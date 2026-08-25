@@ -37,6 +37,7 @@ ${markup}
 
 <script>${src('resume-data.js')}</script>
 <script>${src('render.js')}</script>
+<script>${src('applications/manifest.js')}</script>
 <script>${src('controls.js')}</script>
 `;
 
