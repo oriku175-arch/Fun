@@ -15,7 +15,7 @@
 import { chromium } from 'playwright-core';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
-import { mkdtemp, cp, copyFile, rm } from 'node:fs/promises';
+import { mkdtemp, cp, copyFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 
 const root = path.resolve(import.meta.dirname, '..');
@@ -40,6 +40,18 @@ if (dataFile) {
   const staged = await mkdtemp(path.join(tmpdir(), 'resume-render-'));
   await cp(path.join(root, 'resume'), staged, { recursive: true });
   await copyFile(dataFile, path.join(staged, 'resume-data.js'));
+
+  // controls.js's "Applying to" switcher re-renders on load using whatever
+  // resume the library says is active (localStorage, or "master" by
+  // default) — which would silently override the tailored data file we just
+  // staged. Emptying the staged manifest keeps the library at zero entries,
+  // so the switcher skips itself and the render.js's initial render (using
+  // the data file above) is what actually reaches the PDF.
+  await writeFile(
+    path.join(staged, 'applications', 'manifest.js'),
+    '/* Disabled for a single-file --data render: see render-resume-pdf.mjs. */\nwindow.RESUME_LIBRARY = [];\n'
+  );
+
   renderDir = staged;
   cleanup = () => rm(staged, { recursive: true, force: true });
 }

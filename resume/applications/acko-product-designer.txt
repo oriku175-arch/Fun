@@ -1,0 +1,165 @@
+PRATIK PATIL
+Product Designer | UX Designer
+4+ Years · Product Ownership · Systems Thinking · AI-Fluent Workflow · B2B SaaS · Enterprise
+
+Phone: 992-135-4164 | Email: uiuxpratik@gmail.com | Location: Bangalore, India
+prateekdesigns.framer.website | LinkedIn: linkedin.com/in/uiuxpratik | Behance: behance.net/uiuxpratik
+
+SUMMARY
+Product Designer with 4+ years designing complex B2B, SaaS, and enterprise products
+across healthcare and IT domains, owning problems end-to-end from research and
+problem framing through interaction design, delivery, and post-launch iteration.
+Think structurally about workflows and information architecture rather than
+individual screens, and work directly with product managers and engineers on scope
+and trade-offs, not just execution. Use AI tools (Claude, Lovable) as a regular part
+of the design workflow, from research synthesis through prototyping.
+
+EXPERIENCE
+
+Global Software Resource | UX Designer | Client: Siemens Healthineers
+May 2024 — Present
+- Designed user experiences for an enterprise troubleshooting platform used by
+  medical technicians at Siemens Healthineers, translating complex diagnostic
+  workflows and stakeholder requirements into clearer product experiences.
+- Collaborated with product managers, requirement engineers, and developers to
+  translate requirements into UX solutions and support iterative product delivery.
+- Contributed to an AI-assisted support platform handling 300–400 diagnostic
+  tickets per day, working across research, interaction design, and product
+  delivery for the Siemens Healthineers project.
+- Conducted user interviews and usability testing to identify workflow issues and
+  improve clarity, contributing to an estimated ~30% faster issue resolution.
+- Worked within agile teams to refine workflows, communicate design decisions, and
+  support feature delivery from design through development.
+
+BETSOL | UX Designer
+June 2022 — April 2024
+- Designed UX for an enterprise backup and monitoring product used by IT
+  administrators, working across complex product workflows and administrative
+  experiences.
+- Redesigned onboarding and core workflows to reduce setup complexity and improve
+  usability for enterprise users, contributing to ~40%+ higher trial-to-paid
+  conversion.
+- Built and maintained reusable design components, improving consistency across
+  product experiences and supporting efficient design-to-development handoff.
+- Collaborated within agile delivery teams, working with product and engineering
+  stakeholders through design iteration, feedback, and implementation.
+
+HIE-HQ | UX Trainee
+January 2022 — May 2022
+- Supported research, wireframing, and prototyping across multiple client projects.
+- Assisted in creating internal design systems and shared design tools used by
+  designers.
+- Participated in design reviews and feedback sessions to improve design quality
+  and communication.
+- Developed foundational experience in UX research, interaction design,
+  collaboration, and design execution.
+
+EDUCATION
+Mumbai University — Bachelor of Engineering, Computer Engineering — 2022
+
+SKILLS
+Design & AI-Fluent Workflow: Product Design, Interaction Design, Information
+Architecture, User Flows, Journey Mapping, Wireframing, Prototyping, AI-Assisted
+Design (Claude, Lovable)
+
+Research & Problem Framing: User Research, Problem Discovery, Usability Testing,
+Design Critique, Design Storytelling
+
+Collaboration & Delivery: Stakeholder Collaboration, Cross-functional Collaboration,
+Feedback & Iteration, Agile/Scrum, Design-to-Development Handoff, Design Systems,
+Component Design
+
+Tools: Figma, FigJam, Miro, Adobe Illustrator, Photoshop, Claude, Lovable
+
+RECOGNITION
+Best Performing Employee — Siemens Healthineers
+Top 10% UX Designer — Upwork
+
+
+===============================================================================
+ASSESSMENT — ACKO, Product Designer (PD2)
+===============================================================================
+
+WHAT CHANGED FROM THE BASELINE RESUME
+1. Summary rewritten around ownership and structural thinking ("think structurally
+   about workflows and information architecture rather than individual screens,"
+   "work directly with product managers and engineers on scope and trade-offs, not
+   just execution") — this JD is explicit that it's "not a pixel-pushing role," so
+   the summary leads with that distinction rather than a general design-experience
+   framing.
+2. AI tool use moved into the summary itself and to the top of the skills section,
+   as its own line ("AI-Assisted Design (Claude, Lovable)") instead of sitting at
+   the end of the Tools list — this JD names AI fluency as a specific, actively
+   screened qualification, not a nice-to-have.
+3. At BETSOL, merged the onboarding-redesign bullet and the conversion-metric bullet
+   into one (friction → redesign → result), since this is the strongest genuine
+   match to ACKO's "bonus" growth-design category (onboarding, activation,
+   conversion-focused work) and reads stronger as one causal bullet than two
+   separate ones.
+4. At Siemens, moved the cross-functional collaboration bullet ("worked directly
+   with product managers, requirement engineers, and developers") up ahead of the
+   AI-assisted-platform bullet, since "in the room when decisions are made, not
+   downstream of them" is a named expectation.
+5. Skills regrouped into "Design & AI-Fluent Workflow," "Research & Problem
+   Framing," and "Collaboration & Delivery" — replacing the previous groupings —
+   so AI fluency and cross-functional collaboration read as headline categories
+   rather than being buried inside a generic "Product & Collaboration" bucket.
+6. Tagline changed to "Product Ownership · Systems Thinking · AI-Fluent Workflow"
+   ahead of the domain list, mirroring this JD's actual emphasis.
+7. Nothing added that wasn't already true in the baseline: no insurance/fintech
+   experience claimed, no data-team collaboration claimed, no front-end
+   prototyping claimed, and tenure numbers were not rounded up to clear the JD's
+   2-year ownership bar.
+
+MATCH AGAINST THE JD
+Strong:
+- Years of experience: JD wants 4-6 years; resume shows 4+. This fits cleanly,
+  unlike a recent application where the JD's minimum was 6+.
+- AI tools "as a natural part of how you work": genuinely true here — Claude and
+  Lovable are real, already-listed tools, not added for this application.
+- Figma as primary tool: true.
+- Growth-adjacent bonus work: the BETSOL onboarding redesign + ~40%+ trial-to-paid
+  conversion improvement is real growth design work, not a stretch to claim.
+- Cross-functional collaboration with PMs, requirement engineers, and developers
+  at both Siemens and BETSOL matches "you'll be in the room when decisions are
+  made, not downstream of them" reasonably well, though the resume can't prove
+  the "opinions about scope and trade-offs" framing beyond what's already there.
+- Structural/IA language ("Information Architecture," "translating complex
+  diagnostic workflows... into clearer product experiences") supports the
+  "systems thinking" framing without invention.
+
+Gaps — stated plainly:
+- SUSTAINED OWNERSHIP OF ONE PRODUCT AREA: the JD's sharpest bar is "at least 2
+  years of sustained ownership of a product area (not just feature-level work
+  across many projects)." Siemens is ~15 months and ongoing; BETSOL was ~22
+  months. Neither individually clears 2 years, and they're two different
+  companies and products, not one continuous area of ownership. This is the
+  single biggest gap and the resume can't close it by wording.
+- INSURANCE / FINTECH / REGULATED DOMAIN: listed as "bonus, not required." Not
+  present — healthcare and enterprise IT are adjacent (complex, high-stakes) but
+  not insurance. Because it's explicitly optional, this doesn't carry the weight
+  the ownership gap does.
+- WORKING WITH DATA TEAMS TO VALIDATE HYPOTHESES: not evidenced anywhere in the
+  resume — no A/B testing or data-analyst collaboration mentioned. Not claimed.
+- PROTOTYPING TOOLS / LIGHT FRONT-END CODE: not evidenced. Not claimed.
+- THE INTERVIEW FORMAT ITSELF: this isn't a resume gap, but worth flagging — ACKO
+  evaluates via a deep portfolio walkthrough on one or two projects and a live
+  whiteboarding session, not resume screening alone. The resume can get this far;
+  the actual bar is what it can't measure.
+
+MATCH SCORE: 61/100
+Higher than the Motorola pass (52/100) because the years-of-experience fit is
+clean and the AI-tools requirement is a genuine, not stretched, match. Held back
+by the "2 years of sustained ownership" qualifier, which is specific and
+somewhat unusual as bars go, and by the resume's inability to speak to data-team
+collaboration or prototyping code at all.
+
+RECOMMENDATION: 🟡 APPLY — Some Gaps
+The core craft and the years-of-experience fit are real and now presented well.
+The ownership-tenure bar is the one to be honest with yourself about before
+applying — if ACKO's screen is strict about "2 years, one product area," this
+resume doesn't clear it on paper even though the underlying work (translating
+messy technical requirements into shipped, measurable outcomes, twice) is
+arguably the kind of judgment they're describing. If you apply, be ready to make
+that argument directly in the portfolio walkthrough rather than expecting the
+resume alone to carry it.
